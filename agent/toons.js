@@ -16,7 +16,7 @@ const WASM = 'https://raw.githubusercontent.com/justhoodl/hoodlowl-toons/main/re
 const SITE = 'https://justhoodl.fun';
 const ROUND_MS = Number(process.env.OWLTOONS_ROUND_MS || 6 * 3600e3);
 const AI_URL = 'https://cloud-api.near.ai/v1/chat/completions';
-const AI_MODEL = process.env.OWLTOONS_MODEL || 'deepseek-ai/DeepSeek-V3.1';
+const AI_MODEL = process.env.OWLTOONS_MODEL || 'deepseek/deepseek-v3.2';
 const SETUP_HASH = '3dc187b0fd39d9dbe8b48a76b62d01e17c8fdc222f8573cb23ae16ca2b13dcdd'; // sha256 of the one-time setup token
 
 const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
