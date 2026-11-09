@@ -144,7 +144,7 @@ async function createTestnetAccount(id, key) {
   const r = await fetch('https://helper.testnet.near.org/account', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ newAccountId: id, newAccountPublicKey: key.pubStr }), signal: AbortSignal.timeout(30000) });
   if (!r.ok) throw new Error('helper ' + r.status + ' ' + (await r.text()).slice(0, 200));
 }
-async function setup(step) {
+async function setup(step, opts) {
   const out = [];
   if (step === 'accounts' || step === 'all') {
     for (const [role, id] of [['agent', AGENT], ['contract', CONTRACT], ['treasury', TREASURY]]) {
@@ -165,7 +165,7 @@ async function setup(step) {
   }
   if (step === 'open' || step === 'all') {
     const { ideas } = await writeIdeas(1, []);
-    const op = await callContract('open_round', { ideas, closes_at: Date.now() + ROUND_MS }, 50);
+    const op = await callContract('open_round', { ideas, closes_at: Date.now() + (Number(opts && opts.ms) || ROUND_MS) }, 50);
     out.push('first vote open tx ' + op.hash + ': ' + ideas.join(' | '));
   }
   return out;
@@ -192,7 +192,7 @@ module.exports = async (req, res) => {
     if (req.method === 'POST') {
       let b = req.body; if (typeof b === 'string') { try { b = JSON.parse(b); } catch (e) { b = {}; } }
       if (!b || nodeCrypto.createHash('sha256').update(String(b.token || '')).digest('hex') !== SETUP_HASH) return send(res, 403, { error: 'forbidden' });
-      if (b.action === 'setup') return send(res, 200, { ok: true, out: await setup(b.step || 'all') });
+      if (b.action === 'setup') return send(res, 200, { ok: true, out: await setup(b.step || 'all', b) });
       if (b.action === 'studio') return send(res, 200, await studio());
       if (b.action === 'aitest') {
         const m = await fetch('https://cloud-api.near.ai/v1/models', { headers: { Authorization: 'Bearer ' + process.env.NEARAI_API_KEY } }).then(r => r.json()).catch(e => ({ error: String(e) }));
