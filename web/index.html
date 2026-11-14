@@ -584,8 +584,9 @@ async function playEp() {
   setVB(full); if (!muted) await say('Owl Toons, episode ' + ep.number + '. ' + ep.title, { rate: 0.95, pitch: 0.9 }); else await sleep(1200);
   for (let i = 0; i < panels.length; i++) {
     if (run !== pRun) return;
-    const p = panels[i]; await cam([p.x - 14, p.y - 14, 580 + 28, 400 + 28], 750);
+    const p = panels[i], nr = (P[i] && P[i].narrate) || ''; await cam([p.x - 14, p.y - (nr ? 62 : 14), 580 + 28, 400 + (nr ? 76 : 28)], 750);
     const lines = (P[i] && P[i].lines) || [];
+    if (nr) { if (run !== pRun) return; $('#psub').innerHTML = '<b>Narrator</b>' + esc(nr); if (!muted) await say(nr, { pitch: 1, rate: 0.95 }); else await sleep(1400 + nr.length * 45); await sleep(200); }
     for (let k = 0; k < p.bubs.length; k++) {
       if (run !== pRun) return;
       const l = lines[k] || { who: 'owl', say: '' };
