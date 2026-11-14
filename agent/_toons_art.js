@@ -2,7 +2,7 @@
 // Every character, scene and prop is drawn here in the HOODL style; the AI only picks them.
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const INK = '#141010';
-const PW = 580, PH = 400, GAP = 16, PAD = 24, TOP = 96, BOT = 70;
+const PW = 580, PH = 400, GAP = 16, PAD = 24, TOP = 96, BOT = 70, NAR = 52;
 const W = PAD * 2 + PW * 2 + GAP, H = TOP + PH * 2 + GAP + BOT;
 
 /* ---------- characters (drawn around 0,0 = feet center, ~200px tall) ---------- */
@@ -123,11 +123,13 @@ function panel(p, i) {
     bubbles += bubble(bx, by, l.say, who.x, Math.max(by + 60, who.top - 6), width);
     by += cast.length === 2 ? 0 : 92;
   });
-  const ox = PAD + (i % 2) * (PW + GAP), oy = TOP + Math.floor(i / 2) * (PH + GAP);
-  return `<g transform="translate(${ox},${oy})"><clipPath id="c${i}"><rect width="${PW}" height="${PH}" rx="10"/></clipPath><g clip-path="url(#c${i})" filter="url(#boil)">${scene(p.scene)}${pr}${body}</g><g>${bubbles}</g><rect width="${PW}" height="${PH}" rx="10" fill="none" stroke="${INK}" stroke-width="7"/><text x="16" y="34" font-family="Impact,'Arial Black',sans-serif" font-size="28" fill="#fff" stroke="${INK}" stroke-width="2" paint-order="stroke">${i + 1}</text></g>`;
+  const nar = p.narrate ? NAR : 0, ox = PAD + (i % 2) * (PW + GAP), oy = TOP + Math.floor(i / 2) * (PH + GAP + nar) + nar;
+  const nt = p.narrate ? `<rect x="0" y="${-NAR + 2}" width="${PW}" height="${NAR - 10}" rx="8" fill="#ffc93c" stroke="${INK}" stroke-width="4"/><text x="${PW / 2}" y="${-NAR / 2 + 6}" text-anchor="middle" font-family="'Comic Sans MS','Comic Neue','Chalkboard SE',cursive" font-weight="700" font-size="21" fill="${INK}">${esc(String(p.narrate).slice(0, 70))}</text>` : '';
+  return `<g transform="translate(${ox},${oy})">${nt}<clipPath id="c${i}"><rect width="${PW}" height="${PH}" rx="10"/></clipPath><g clip-path="url(#c${i})" filter="url(#boil)">${scene(p.scene)}${pr}${body}</g><g>${bubbles}</g><rect width="${PW}" height="${PH}" rx="10" fill="none" stroke="${INK}" stroke-width="7"/><text x="16" y="34" font-family="Impact,'Arial Black',sans-serif" font-size="28" fill="#fff" stroke="${INK}" stroke-width="2" paint-order="stroke">${i + 1}</text></g>`;
 }
 function render(ep) {
-  const s = ep.script || {}, panels = (s.panels || []).slice(0, 4);
+  const s = ep.script || {}, panels = (s.panels || []).slice(0, 6);
+  const rows = Math.ceil(panels.length / 2) || 2, nar = panels.some(p => p.narrate) ? NAR : 0, H = TOP + rows * (PH + nar) + (rows - 1) * GAP + BOT;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
 <defs><filter id="boil" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="2" seed="${(ep.n || 1) * 7}"/><feDisplacementMap in="SourceGraphic" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter></defs>
 <rect width="${W}" height="${H}" fill="#fff4e6"/>
