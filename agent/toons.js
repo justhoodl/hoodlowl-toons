@@ -9,7 +9,10 @@ const { render } = require('./_toons_art.js');
 
 const NET = process.env.OWLTOONS_NETWORK || 'testnet';
 const RPC = NET === 'mainnet' ? ['https://free.rpc.fastnear.com', 'https://rpc.mainnet.near.org'] : ['https://test.rpc.fastnear.com', 'https://rpc.testnet.near.org'];
-const CONTRACT = process.env.OWLTOONS_CONTRACT || 'owltoons-hoodl.testnet';
+const CONTRACT = process.env.OWLTOONS_CONTRACT || 'owltoons-studio.testnet';
+// redis keys are per contract, so a fresh contract starts with a clean episode list and log
+const NS = 'ot:' + CONTRACT + ':';
+const keyName = role => role === 'contract' ? 'ot:k:contract:' + CONTRACT : 'ot:k:' + role;
 const AGENT = process.env.OWLTOONS_AGENT || 'owltoons-agent.testnet';
 const TREASURY = process.env.OWLTOONS_TREASURY || 'owltoons-treasury.testnet';
 const WASM = 'https://raw.githubusercontent.com/justhoodl/hoodlowl-toons/main/res/owl_toons.wasm';
@@ -122,7 +125,7 @@ async function studio() {
     const w = round.options[win], n = round.episode, log = [];
     const { script, usage } = await writeEpisode(n, w.text, w.by === AGENT ? 'the Owl Toons agent' : w.by);
     log.push('script by NEAR AI: ' + script.title);
-    await setJ('ot:ep:' + n, { n, script, plot: w.text, by: w.by, at: Date.now() });
+    await setJ(NS + 'ep:' + n, { n, script, plot: w.text, by: w.by, at: Date.now() });
     const media = SITE + '/api/toons?ep=' + n;
     const pub = await callContract('publish_episode', { title: script.title, media, script: JSON.stringify(script) }, 150);
     log.push('published #' + n + ' tx ' + pub.hash);
@@ -134,7 +137,7 @@ async function studio() {
     const { ideas } = await writeIdeas(n + 1, recent);
     const op = await callContract('open_round', { ideas, closes_at: Date.now() + ROUND_MS }, 50);
     log.push('opened vote for #' + (n + 1) + ' tx ' + op.hash);
-    await redis([['LPUSH', 'ot:log', JSON.stringify({ at: Date.now(), n, lines: log })], ['LTRIM', 'ot:log', '0', '49'], ['DEL', 'ot:state']]);
+    await redis([['LPUSH', NS + 'log', JSON.stringify({ at: Date.now(), n, lines: log })], ['LTRIM', NS + 'log', '0', '49'], ['DEL', NS + 'state']]);
     return { ok: true, log };
   } finally { await redis([['DEL', 'ot:lock']]); }
 }
@@ -148,19 +151,19 @@ async function setup(step, opts) {
   const out = [];
   if (step === 'accounts' || step === 'all') {
     for (const [role, id] of [['agent', AGENT], ['contract', CONTRACT], ['treasury', TREASURY]]) {
-      const [have] = await redis([['GET', 'ot:k:' + role]]); if (have) { out.push(role + ' exists'); continue; }
-      const k = newKey(); await createTestnetAccount(id, k); await redis([['SET', 'ot:k:' + role, k.secret]]); out.push(role + ' created ' + id);
+      const [have] = await redis([['GET', keyName(role)]]); if (have) { out.push(role + ' exists'); continue; }
+      const k = newKey(); await createTestnetAccount(id, k); await redis([['SET', keyName(role), k.secret]]); out.push(role + ' created ' + id);
     }
   }
   if (step === 'deploy' || step === 'all') {
-    const [sec] = await redis([['GET', 'ot:k:contract']]); const ck = keyFromSecret(sec);
+    const [sec] = await redis([['GET', keyName('contract')]]); const ck = keyFromSecret(sec);
     const code = Buffer.from(await (await fetch(WASM + '?t=' + Date.now())).arrayBuffer()); if (code.length < 10000) throw new Error('wasm not built yet');
     const d = await sendTx(ck, CONTRACT, CONTRACT, [A.deploy(code), A.call('new', { agent: AGENT, treasury: TREASURY }, 100, 0)]);
     out.push('deployed ' + code.length + ' bytes tx ' + d.hash);
   }
   if (step === 'lock' || step === 'all') {
-    const [sec] = await redis([['GET', 'ot:k:contract']]); const ck = keyFromSecret(sec);
-    const d = await sendTx(ck, CONTRACT, CONTRACT, [A.delKey(ck.pub)]); await redis([['DEL', 'ot:k:contract']]);
+    const [sec] = await redis([['GET', keyName('contract')]]); const ck = keyFromSecret(sec);
+    const d = await sendTx(ck, CONTRACT, CONTRACT, [A.delKey(ck.pub)]); await redis([['DEL', keyName('contract')]]);
     out.push('contract locked (key deleted) tx ' + d.hash);
   }
   if (step === 'open' || step === 'all') {
@@ -173,20 +176,21 @@ async function setup(step, opts) {
 
 /* ---------- state for the site ---------- */
 async function state() {
-  const c = await getJ('ot:state'); if (c) return c;
-  const [round, stats, eps, logs] = await Promise.all([view('get_round'), view('get_stats'), view('get_episodes', { limit: 12 }), redis([['LRANGE', 'ot:log', '0', '9']])]);
+  const c = await getJ(NS + 'state'); if (c) return c;
+  const [round, stats, eps, logs] = await Promise.all([view('get_round'), view('get_stats'), view('get_episodes', { limit: 12 }), redis([['LRANGE', NS + 'log', '0', '9']])]);
   const s = { network: NET, contract: CONTRACT, agent: AGENT, treasury: TREASURY, round, stats, episodes: eps, log: (logs[0] || []).map(x => { try { return JSON.parse(x); } catch (e) { return null; } }).filter(Boolean), at: Date.now() };
-  await setJ('ot:state', s, 15); return s;
+  await setJ(NS + 'state', s, 15); return s;
 }
 
 module.exports = async (req, res) => {
   try {
     const q = req.query || {};
     if (req.method === 'GET' && q.ep) {
-      const e = await getJ('ot:ep:' + Number(q.ep)); if (!e) return send(res, 404, { error: 'no such episode' });
+      const e = await getJ(NS + 'ep:' + Number(q.ep)); if (!e) return send(res, 404, { error: 'no such episode' });
       res.setHeader('cache-control', 'public, max-age=86400'); return send(res, 200, render(e), 'image/svg+xml');
     }
-    if (req.method === 'GET' && q.script) { const e = await getJ('ot:ep:' + Number(q.script)); return send(res, e ? 200 : 404, e || { error: 'no such episode' }); }
+    if (req.method === 'GET' && q.script) { const e = await getJ(NS + 'ep:' + Number(q.script)); return send(res, e ? 200 : 404, e || { error: 'no such episode' }); }
+    if (req.method === 'GET' && q.earn) { res.setHeader('cache-control', 'no-store'); return send(res, 200, { account: String(q.earn), earnings: await view('get_earnings', { account_id: String(q.earn) }) }); }
     if (req.method === 'GET' && q.state) { res.setHeader('cache-control', 'no-store'); return send(res, 200, await state()); }
     if (req.method === 'GET' && (q.tick || /^vercel-cron\//.test(String(req.headers['user-agent'] || '')))) return send(res, 200, await studio());
     if (req.method === 'POST') {
