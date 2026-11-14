@@ -4,293 +4,367 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Owl Toons · HOODL</title>
-<meta name="description" content="An AI cartoon studio that runs itself on NEAR. Vote on the next plot, the agent writes and draws it, and the fans who backed the winner share the pot.">
+<meta name="description" content="Pick the plot. The AI draws the cartoon. You get paid. A cartoon studio on NEAR that runs itself.">
 <meta property="og:title" content="Owl Toons">
-<meta property="og:description" content="Fans pick the story, the AI makes the cartoon, the fans get paid and $HOODL burns.">
+<meta property="og:description" content="Pick the plot. The AI draws the cartoon. You get paid.">
 <link rel="icon" href="/owl.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Gaegu:wght@400;700&family=Archivo:wght@500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Gochi+Hand&family=Archivo:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
-:root{--paper:#fff4e6;--card:#fffaf3;--ink:#141010;--mute:#6f6157;--o:#ff5f0a;--g:#1f9d57;--y:#ffc93c;--b:#3b82f6;--p:#a855f7;--night:#1d1a33;--night2:#2a2647;--nmute:#b9b3d6;
- --display:'Luckiest Guy','Archivo Black',Impact,sans-serif;--hand:'Gaegu','Comic Sans MS',cursive;--ui:'Archivo',system-ui,sans-serif}
+:root{--paper:#fff1dc;--card:#fffaf2;--ink:#141010;--mute:#6b5d52;--o:#ff5f0a;--g:#2bb673;--y:#ffc93c;--b:#3b82f6;--sky:#7fd3ff;--p:#a855f7;--night:#231f45;--night2:#302a5c;--nm:#c2bce6;
+ --display:'Lilita One','Arial Black',Impact,sans-serif;--hand:'Gochi Hand','Comic Sans MS',cursive;--ui:'Archivo',system-ui,sans-serif;color-scheme:light}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--paper);color:var(--ink);font:500 16px/1.5 var(--ui);background-image:radial-gradient(rgba(20,16,16,.08) 1.2px,transparent 1.3px);background-size:22px 22px}
+body{margin:0;background:var(--paper);color:var(--ink);font:500 16px/1.5 var(--ui)}
 a{color:inherit}
 [hidden]{display:none!important}
-.wrap{max-width:1080px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-left)) 60px}
+.wrap{max-width:1100px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left));padding-block:16px 60px}
+
+/* hand-drawn boxes: the outline and the shadow are drawn wobbly, the content stays crisp */
+.sk{position:relative;isolation:isolate;--fill:var(--card);--r:18px;--sh:6px}
+.sk::before,.sk::after{content:"";position:absolute;inset:0;border-radius:var(--r);pointer-events:none;filter:url(#rough)}
+.sk::before{background:var(--fill);border:3.5px solid var(--ink);z-index:-1}
+.sk::after{background:var(--ink);transform:translate(var(--sh),var(--sh));z-index:-2}
+
+button,.btn{font:400 18px/1 var(--display);letter-spacing:.02em;color:#fff;border:0;background:none;padding:12px 18px;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:8px;--fill:var(--o);--r:999px;--sh:4px}
+button.sk,.btn.sk{--fill:var(--o);--r:999px;--sh:4px}
+button:active{transform:translate(2px,2px)}
+.sk.light{color:var(--ink);--fill:var(--card)}
+.sk.green{--fill:var(--g)}
+.sk.dark{--fill:var(--ink)}
+button[disabled]{opacity:.45;cursor:default;transform:none}
+button:focus-visible,.btn:focus-visible{outline:3px dashed var(--o);outline-offset:4px}
+button svg,.btn svg{width:20px;height:20px;flex:none}
+h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:.01em;margin:0;text-wrap:balance}
+h2{font-size:clamp(30px,4.4vw,44px);line-height:1}
+h3{font-size:22px;line-height:1.1}
+.hand{font-family:var(--hand);font-size:22px;line-height:1.2;color:var(--mute)}
+section{margin-top:56px}
+.shead{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.tag{display:inline-block;font:900 12px var(--ui);letter-spacing:.14em;text-transform:uppercase;background:var(--ink);color:#fff;border-radius:999px;padding:5px 11px}
+
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
-.brand img{width:52px;height:52px;border-radius:50%;border:3px solid var(--ink)}
-.brand h1{margin:0;font:400 42px/1 var(--display);color:var(--o);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:3px 4px 0 var(--ink)}
-.net{display:inline-block;font:700 11px var(--ui);letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:#fff;border-radius:999px;padding:5px 10px;margin-top:4px}
-.hbtns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-button,.btn{font:900 14px var(--ui);border:3px solid var(--ink);border-radius:999px;padding:9px 15px;background:var(--o);color:#fff;box-shadow:3px 4px 0 var(--ink);cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:7px}
-button:active{transform:translate(2px,2px);box-shadow:1px 2px 0 var(--ink)}
-button.ghost,.btn.ghost{background:var(--card);color:var(--ink)}
-button.green{background:var(--g)}
-button[disabled]{opacity:.5;cursor:default}
-button:focus-visible,.btn:focus-visible{outline:3px solid var(--g);outline-offset:3px}
-button svg{width:18px;height:18px;flex:none}
-h2{font:400 30px/1.05 var(--display);letter-spacing:.02em;margin:0 0 4px;text-wrap:balance}
-h3{font:400 21px/1.1 var(--display);letter-spacing:.02em;margin:0 0 6px}
-.sub{font:700 20px/1.2 var(--hand);color:var(--mute);margin:0 0 14px}
-section{margin-top:34px}
-.card{background:var(--card);border:3px solid var(--ink);border-radius:18px;padding:18px;box-shadow:5px 6px 0 var(--ink);min-width:0}
-.help{font:500 14px/1.45 var(--ui)}
-.note{font:500 13px var(--ui);color:var(--mute);margin:10px 0 0}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand img{width:50px;height:50px;border-radius:50%;border:3.5px solid var(--ink);background:var(--o)}
+.brand b{font:400 30px/1 var(--display);color:var(--ink)}
+.brand b i{font-style:normal;color:var(--o)}
+.hbtns{display:flex;gap:10px;flex-wrap:wrap}
 
 /* hero */
-.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:22px;align-items:center;margin-top:22px}
-@media (max-width:820px){.hero{grid-template-columns:1fr}}
-.hero .big{font:400 clamp(30px,5vw,46px)/1.02 var(--display);margin:0;text-wrap:balance}
-.hero .big em{font-style:normal;color:var(--o);-webkit-text-stroke:1.5px var(--ink);paint-order:stroke fill}
-.hero p{font:700 22px/1.25 var(--hand);color:var(--mute);margin:10px 0 16px}
-.steps3{display:grid;gap:10px}
-.s3{display:grid;grid-template-columns:46px minmax(0,1fr);gap:12px;align-items:center;background:var(--card);border:3px solid var(--ink);border-radius:16px;padding:10px 12px;box-shadow:4px 5px 0 var(--ink)}
-.s3 .n{width:46px;height:46px;border-radius:50%;border:3px solid var(--ink);display:grid;place-items:center;font:400 22px var(--display);color:#fff}
-.s3 b{display:block;font:400 18px/1.1 var(--display)}
-.s3 span{font:500 13.5px/1.35 var(--ui);color:var(--mute)}
-.listen{font-size:16px;padding:12px 20px}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:20px;align-items:center;margin-top:26px}
+@media (max-width:860px){.hero{grid-template-columns:1fr}}
+.big{font:400 clamp(44px,7vw,82px)/.92 var(--display);margin:0}
+.big span{color:var(--o);display:inline-block;transform:rotate(-2deg)}
+.hero .hand{margin:14px 0 22px;font-size:24px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.heroart{width:100%;height:auto;display:block;overflow:visible}
+.bob{animation:bob 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
+.b2{animation-delay:-.6s}.b3{animation-delay:-1.2s;animation-duration:1.8s}.b4{animation-delay:-1.8s}
+@keyframes bob{50%{transform:translateY(-8px) rotate(-1.5deg)}}
+.spin{animation:spin 3s ease-in-out infinite}
+.s2{animation-delay:-1.5s}
+@keyframes spin{50%{transform:translateY(-14px)}}
+.spin{transform-box:fill-box}
 
-/* vote + prize */
-.row{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px}
-@media (max-width:820px){.row{grid-template-columns:1fr}}
-.vhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
-.timer{font:400 26px var(--display);color:var(--o);-webkit-text-stroke:1.2px var(--ink);paint-order:stroke fill;font-variant-numeric:tabular-nums}
-.tlabel{display:block;font:700 11px var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);text-align:right}
-.amt{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:4px 0 6px}
-.amt button{padding:5px 10px;font-size:13px;box-shadow:2px 3px 0 var(--ink)}
-.amt button.on{background:var(--ink)}
-.amt button:not(.on){background:var(--card);color:var(--ink)}
-.opt{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 10px;align-items:center;padding:12px 0;border-bottom:2px dashed rgba(20,16,16,.2)}
-.opt:last-child{border-bottom:0}
-.opt .t{font:700 22px/1.15 var(--hand)}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:26px}
+@media (max-width:700px){.steps{grid-template-columns:1fr}}
+.step{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:center;padding:12px 16px}
+.step svg{width:76px;height:76px;overflow:visible}
+.step b{display:block;font:400 24px/1 var(--display)}
+.step span{font:500 14px/1.35 var(--ui);color:var(--mute)}
+.st1{--fill:#ffe1c7}.st2{--fill:#dff3ff}.st3{--fill:#dcf5e6}
+
+/* vote */
+.row{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px}
+@media (max-width:860px){.row{grid-template-columns:1fr}}
+.pad{padding:20px}
+.vtop{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.clock{display:flex;align-items:center;gap:8px;font:400 30px var(--display);font-variant-numeric:tabular-nums;color:var(--o)}
+.clock svg{width:28px;height:28px}
+.amt{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+.amt button.sk{font-size:15px;padding:8px 12px;--sh:3px}
+.amt button.sk:not(.on){color:var(--ink);--fill:var(--card)}
+.amt button.sk.on{--fill:var(--ink)}
+.amt .lbl{font:700 13px var(--ui);color:var(--mute);margin-right:2px}
+.opts{display:grid;gap:14px;margin-top:12px}
+.opt{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 12px;align-items:center;padding:14px 16px;--fill:#fff;--r:14px;--sh:4px}
+.opt.lead{--fill:#e3f7ea}
+.opt .t{font:400 24px/1.12 var(--hand);color:var(--ink)}
 .opt .by{font:500 13px var(--ui);color:var(--mute);overflow-wrap:anywhere}
-.opt .rank{display:inline-block;font:900 11px var(--ui);letter-spacing:.06em;text-transform:uppercase;border:2px solid var(--ink);border-radius:999px;padding:1px 7px;margin-right:6px;background:var(--y)}
+.opt .rank{display:inline-block;font:400 14px var(--display);background:var(--y);border:2.5px solid var(--ink);border-radius:999px;padding:1px 8px;margin-right:6px;vertical-align:3px}
 .opt .mine{color:var(--g);font-weight:900}
 .bar{grid-column:1/-1;height:12px;border:2.5px solid var(--ink);border-radius:999px;overflow:hidden;background:var(--paper)}
 .bar i{display:block;height:100%;background:var(--o)}
 .opt.lead .bar i{background:var(--g)}
-.own{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-.own input{flex:1;min-width:0;font:700 19px var(--hand);border:3px solid var(--ink);border-radius:12px;padding:8px 12px;background:var(--paper);color:var(--ink)}
-.potbig{font:400 40px/1 var(--display);font-variant-numeric:tabular-nums}
-.potbig small{font:700 16px var(--ui);margin-left:4px}
-.stack{display:flex;height:26px;border:3px solid var(--ink);border-radius:999px;overflow:hidden;margin:12px 0}
-.stack i{display:block;height:100%}
-.split{list-style:none;margin:0;padding:0;display:grid;gap:6px}
-.split li{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:10px;align-items:center;font:500 14px/1.3 var(--ui)}
-.split .dot{width:14px;height:14px;border-radius:4px;border:2px solid var(--ink)}
-.split b{font-variant-numeric:tabular-nums}
-.split small{display:block;color:var(--mute);font-size:12px}
-.mywin{margin-top:14px;border:3px dashed var(--ink);border-radius:14px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:var(--paper)}
-.mywin b{font:400 26px var(--display);font-variant-numeric:tabular-nums}
-.mywin small{display:block;font:700 11px var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.closed{font:700 15px var(--ui);background:var(--y);border:3px solid var(--ink);border-radius:12px;padding:10px 12px}
+.own{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.own input{flex:1;min-width:0;font:400 22px var(--hand);border:3px solid var(--ink);border-radius:12px;padding:8px 12px;background:#fff;color:var(--ink)}
+.note{font:500 13px var(--ui);color:var(--mute);margin:12px 0 0}
+
+.prize{--fill:var(--y)}
+.potbig{font:400 64px/1 var(--display);font-variant-numeric:tabular-nums;margin:6px 0 2px}
+.potbig small{font:400 24px var(--display);margin-left:6px}
+.stack{display:flex;height:28px;border:3px solid var(--ink);border-radius:999px;overflow:hidden;margin:12px 0;background:#fff}
+.stack i{display:block;height:100%;border-right:2.5px solid var(--ink)}
+.stack i:last-child{border-right:0}
+.split{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.split li{display:grid;grid-template-columns:16px minmax(0,1fr) auto;gap:10px;align-items:center;font:700 14px/1.25 var(--ui)}
+.split .dot{width:16px;height:16px;border-radius:50%;border:2.5px solid var(--ink)}
+.split b{font:400 18px var(--display);font-variant-numeric:tabular-nums}
+.split small{display:block;font-weight:500;color:var(--mute);font-size:12px}
+.mywin{margin-top:16px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;--fill:#fff;--r:14px;--sh:4px}
+.mywin small{display:block;font:900 11px var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.mywin b{font:400 30px var(--display);font-variant-numeric:tabular-nums}
 
 /* episode */
-.meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
-.chips{display:flex;gap:8px;flex-wrap:wrap}
+.epwrap{padding:12px;--fill:var(--ink);--r:20px;--sh:8px}
+.epbox{position:relative;display:block;border-radius:12px;overflow:hidden;background:#fff4e6;cursor:pointer}
+.epbox img{display:block;width:100%;height:auto}
+.play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:24px;padding:16px 26px}
+.play:active{transform:translate(calc(-50% + 2px),calc(-50% + 2px))}
+.empty{display:grid;place-items:center;gap:8px;min-height:260px;text-align:center;padding:20px;font:400 26px/1.25 var(--hand);color:var(--ink)}
+.empty svg{width:120px;height:120px}
+.eprow{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .chip{font:700 13px var(--ui);border:2.5px solid var(--ink);border-radius:999px;padding:5px 11px;background:var(--card)}
 .chip.o{background:var(--o);color:#fff}
-.comic{background:var(--ink);padding:10px;border-radius:16px;box-shadow:6px 8px 0 rgba(20,16,16,.25)}
-.comic img{display:block;width:100%;height:auto;border-radius:8px;background:#fff4e6}
-.empty{display:grid;place-items:center;min-height:240px;background:#fff4e6;border-radius:8px;text-align:center;padding:20px;font:700 22px/1.3 var(--hand)}
 
-/* money (dark, like the mockup) */
-.money{background:var(--night);color:#fff;border:3px solid var(--ink);border-radius:22px;padding:22px;box-shadow:6px 8px 0 var(--ink)}
-.money .sub{color:var(--nmute)}
-.mgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-@media (max-width:820px){.mgrid{grid-template-columns:1fr}}
-.mcard{background:var(--night2);border:2px solid rgba(255,255,255,.14);border-radius:16px;padding:16px;min-width:0}
+/* money */
+.money{padding:26px;color:#fff;--fill:var(--night);--r:24px;--sh:8px}
+.money h2{color:#fff}
+.money .hand{color:var(--nm)}
+.mgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:16px}
+@media (max-width:860px){.mgrid{grid-template-columns:1fr}}
+.mcard{background:var(--night2);border:3px solid #fff;border-radius:18px;padding:18px;min-width:0}
+.mcard h3{color:#fff;margin-bottom:6px}
 .mcard .split li{color:#fff}
-.mcard .split small{color:var(--nmute)}
-.mcard .split .dot{border-color:#fff}
-.mcard .stack{border-color:#fff}
-.pie{width:120px;height:120px;border-radius:50%;border:3px solid #fff;flex:none}
-.pieRow{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
-.pieRow .split{flex:1;min-width:180px}
-.burn{margin-top:16px;display:flex;gap:12px;align-items:center;background:rgba(255,95,10,.14);border:2px solid var(--o);border-radius:14px;padding:12px 14px;font:500 14px/1.4 var(--ui)}
-.burn b{color:var(--y)}
+.mcard .split small{color:var(--nm)}
+.mcard .split .dot,.mcard .stack,.mcard .stack i{border-color:#fff}
+.pieRow{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.pie{width:130px;height:130px;border-radius:50%;border:4px solid #fff;flex:none}
+.pieRow .split{flex:1;min-width:190px}
+.burn{margin-top:18px;display:flex;gap:14px;align-items:center;background:var(--o);color:#fff;border:3px solid #fff;border-radius:16px;padding:14px 16px;font:400 20px/1.2 var(--display)}
+.burn svg{width:34px;height:34px;flex:none}
 
 /* agent */
-.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}
-.stat{border:2.5px solid var(--ink);border-radius:12px;padding:10px;background:var(--paper);min-width:0}
-.stat small{display:block;font:700 11px var(--ui);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
-.stat b{font:400 22px/1.1 var(--display);font-variant-numeric:tabular-nums}
-.log{list-style:none;margin:0;padding:0;font:500 13.5px/1.4 var(--ui)}
-.log li{padding:7px 0;border-bottom:1px dashed rgba(20,16,16,.2);overflow-wrap:anywhere}
-.log time{color:var(--mute);font-size:12px;margin-right:6px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}
+@media (max-width:480px){.stats{grid-template-columns:1fr 1fr}}
+.stat{border:3px solid var(--ink);border-radius:14px;padding:10px 12px;background:#fff;min-width:0}
+.stat small{display:block;font:900 11px var(--ui);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.stat b{font:400 26px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.log{list-style:none;margin:12px 0 0;padding:0;font:500 14px/1.4 var(--ui)}
+.log li{padding:8px 0;border-bottom:2px dashed rgba(20,16,16,.18);overflow-wrap:anywhere}
+.log li:last-child{border-bottom:0}
+.log time{font-weight:900;color:var(--mute);font-size:12px;margin-right:8px}
 
-.past{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-@media (max-width:820px){.past{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:480px){.past{grid-template-columns:1fr}.brand h1{font-size:34px}.stats{grid-template-columns:1fr 1fr}}
-.ep{background:var(--card);border:3px solid var(--ink);border-radius:14px;overflow:hidden;text-decoration:none}
-.ep img{display:block;width:100%;height:auto;border-bottom:3px solid var(--ink)}
-.ep div{padding:8px 10px;font:700 17px/1.15 var(--hand)}
-.ep small{display:block;font:500 12px var(--ui);color:var(--mute)}
+.past{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+@media (max-width:860px){.past{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.past{grid-template-columns:1fr}}
+.ep{display:block;text-decoration:none;padding:8px;--fill:#fff;--r:16px;--sh:5px}
+.ep img{display:block;width:100%;height:auto;border-radius:10px;border:2.5px solid var(--ink)}
+.ep div{padding:8px 4px 2px;font:400 19px/1.15 var(--display)}
+.ep small{display:block;font:500 12px var(--ui);color:var(--mute);margin-top:2px}
 
-/* voice guide */
-.guide{position:fixed;inset:0;z-index:60;background:rgba(20,16,16,.6);display:grid;place-items:center;padding:16px}
-.gbox{width:min(560px,100%);max-height:calc(100% - 24px);overflow:auto;background:var(--night);color:#fff;border:3px solid var(--ink);border-radius:22px;padding:20px;box-shadow:6px 8px 0 var(--ink)}
-.gtop{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.gtop img{width:48px;height:48px;border-radius:50%;border:3px solid #fff}
-.gtop h3{margin:0;color:#fff}
-.gtop .x{margin-left:auto;background:transparent;color:#fff;border-color:#fff;box-shadow:none;padding:6px 12px}
-.wave{display:flex;gap:3px;align-items:flex-end;height:18px}
-.wave i{width:4px;background:var(--o);border-radius:2px;height:4px}
-.speaking .wave i{animation:w 1s ease-in-out infinite}
+.try{padding:22px;--fill:#dff3ff}
+.try ol{margin:10px 0 0;padding-left:22px;font:500 15px/1.6 var(--ui)}
+.try p{font:500 14px var(--ui);margin:12px 0 0}
+footer{margin-top:50px;text-align:center;font:400 22px var(--hand);color:var(--mute)}
+
+/* overlays */
+.ovl{position:fixed;inset:0;z-index:60;background:rgba(20,16,16,.82);display:grid;place-items:center;padding:16px}
+.gbox{width:min(580px,100%);max-height:calc(100% - 20px);overflow:auto;padding:22px;color:#fff;--fill:var(--night);--r:24px;--sh:8px}
+.gtop{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.gtop svg.av{width:56px;height:56px;flex:none}
+.gtop h3{color:#fff}
+.x.sk{margin-left:auto;font-size:15px;padding:8px 14px;color:var(--ink);--fill:#fff;--sh:3px}
+.wave{display:flex;gap:4px;align-items:flex-end;height:18px;margin-top:4px}
+.wave i{width:5px;height:5px;background:var(--o);border-radius:3px}
+.speaking .wave i{animation:w .9s ease-in-out infinite}
 .wave i:nth-child(2){animation-delay:.15s}.wave i:nth-child(3){animation-delay:.3s}.wave i:nth-child(4){animation-delay:.45s}
 @keyframes w{50%{height:18px}}
 .glines{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-.glines li{padding:10px 12px;border-radius:12px;border:2px solid transparent;color:var(--nmute);font:500 15.5px/1.45 var(--ui);transition:.25s}
-.glines li b{color:#fff;font:400 16px var(--display);letter-spacing:.03em;display:block}
+.glines li{padding:10px 12px;border-radius:14px;border:3px solid transparent;color:var(--nm);font:500 15.5px/1.45 var(--ui);transition:.25s}
+.glines li b{display:block;color:#fff;font:400 18px var(--display)}
 .glines li.now{background:var(--night2);border-color:var(--o);color:#fff}
-.glines li.done{opacity:.7}
-.gctl{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-@media (prefers-reduced-motion:reduce){.speaking .wave i{animation:none;height:10px}html{scroll-behavior:auto}}
+.gctl{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.gctl button.sk{font-size:16px}
 
-.viewer{position:fixed;inset:0;z-index:65;background:rgba(10,8,8,.94);display:flex;flex-direction:column;padding:calc(10px + env(safe-area-inset-top,0px)) 12px calc(12px + env(safe-area-inset-bottom,0px))}
-.vtop{display:flex;align-items:center;gap:10px;color:#fff}
-.vtop h3{margin:0;color:#fff;flex:1;min-width:0;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.vtop button{background:transparent;color:#fff;border-color:#fff;box-shadow:none;padding:6px 12px}
-.vstage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;touch-action:pan-y;user-select:none}
-.vstage img{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px;background:#fff4e6}
-.vbot{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#fff;flex-wrap:wrap}
-.vbot .count{font:700 14px var(--ui);color:#cfc8c0}
-.vbot .navb{display:flex;gap:8px}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(30px);opacity:0;background:var(--ink);color:#fff;font:700 14px var(--ui);padding:10px 16px;border-radius:999px;transition:.3s;z-index:70;max-width:calc(100% - 32px);text-align:center}
+.player{position:fixed;inset:0;z-index:65;background:var(--ink);display:flex;flex-direction:column;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 12px calc(12px + env(safe-area-inset-bottom,0px))}
+.ptop{display:flex;align-items:center;gap:10px;color:#fff}
+.ptop h3{color:#fff;flex:1;min-width:0;font-size:20px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ptop .x{margin-left:0}
+.stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;touch-action:pan-y;user-select:none}
+.stage svg{width:100%;height:100%;max-height:100%;display:block}
+.sub{min-height:2.6em;text-align:center;color:#fff;font:400 24px/1.25 var(--hand);padding:0 8px}
+.sub b{color:var(--y);font:400 18px var(--display);margin-right:6px}
+.pbot{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap}
+.pbot button.sk{font-size:15px;padding:9px 13px;--sh:3px}
+.pcount{color:#cfc6bd;font:700 13px var(--ui);min-width:52px;text-align:center}
+.bub{transform-box:fill-box;transform-origin:50% 100%;transition:transform .35s cubic-bezier(.3,1.6,.5,1),opacity .2s}
+.hideb .bub{opacity:0;transform:scale(.3)}
+.hideb .bub.on{opacity:1;transform:scale(1)}
+
+@keyframes talk{50%{transform:translateY(-10px) rotate(-3deg)}}
+.cbob{transform-box:fill-box;transform-origin:50% 100%;animation:bob 2.6s ease-in-out infinite}
+.cbob.talk{animation:talk .35s ease-in-out 3}
+.share{width:min(420px,100%);padding:20px;--fill:#fff;--r:22px;--sh:7px}
+.share h3{margin-bottom:12px}
+.sgrid{display:grid;gap:10px}
+.sgrid .btn,.sgrid button{justify-content:center}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(30px);opacity:0;background:var(--ink);color:#fff;font:700 14px var(--ui);padding:11px 16px;border-radius:999px;border:3px solid #fff;transition:.3s;z-index:80;max-width:calc(100% - 32px);text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-footer{margin-top:44px;font:500 13px var(--ui);color:var(--mute);text-align:center}
+@media (prefers-reduced-motion:reduce){.bob,.spin,.cbob,.talk,.speaking .wave i{animation:none}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="rough" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="5" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>
 <div class="wrap">
  <header>
-  <a class="brand" href="/toons/"><img src="/owl.png" alt=""><div><h1>OWL TOONS</h1><span class="net" id="net">NEAR testnet</span></div></a>
-  <div class="hbtns"><button type="button" class="ghost" data-listen><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>How it works</button><a class="btn ghost" href="https://github.com/justhoodl/hoodlowl-toons" target="_blank" rel="noopener">Code</a><button id="conn" type="button">Connect wallet</button></div>
+  <a class="brand" href="/toons/"><img src="/owl.png" alt=""><b>OWL <i>TOONS</i></b></a>
+  <div class="hbtns"><button type="button" class="light sk" data-listen><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>How it works</button><button id="conn" type="button" class="sk">Connect wallet</button></div>
  </header>
 
- <section class="hero" aria-label="What is Owl Toons">
+ <section class="hero" style="margin-top:22px" aria-label="Owl Toons">
   <div>
-   <p class="big">You pick the story.<br>The AI makes the cartoon.<br><em>You get paid.</em></p>
-   <p>A cartoon studio on NEAR that runs itself. Every round, fans vote on what happens next, and the fans who called it share the pot.</p>
-   <button type="button" class="listen" data-listen><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Listen: how it works (1 min)</button>
+   <span class="tag">AI cartoon studio on NEAR</span>
+   <h1 class="big" style="margin-top:14px">Pick the plot.<br>AI draws it.<br><span>You get paid.</span></h1>
+   <p class="hand">Back the winning story and share the pot.</p>
+   <div class="cta"><a class="btn sk" href="#vote">Vote now</a><button type="button" class="light sk" data-listen><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Listen · 1 min</button></div>
   </div>
-  <div class="steps3">
-   <div class="s3"><span class="n" style="background:var(--o)">1</span><div><b>Vote on the next plot</b><span>Back a plot with 0.1 NEAR or more, or pitch your own for 1 NEAR.</span></div></div>
-   <div class="s3"><span class="n" style="background:var(--b)">2</span><div><b>The AI makes it</b><span>When the timer ends, the agent writes and draws the winning plot as a 4-panel cartoon.</span></div></div>
-   <div class="s3"><span class="n" style="background:var(--g)">3</span><div><b>Winners get paid</b><span>50% of the pot to the fans who backed the winner. Top 3 pitchers earn too. 20% buys back and burns $HOODL.</span></div></div>
-  </div>
+  <div><svg viewBox="0 0 900 330" class="heroart" role="img" aria-label="The Owl Toons cast: whale, frog, owl and fox"><g filter="url(#rough)"><path d="M10,300 C200,288 420,306 600,294 C720,288 820,300 890,296" fill="none" stroke="#141010" stroke-width="7" stroke-linecap="round"/><g transform="translate(150,298) scale(0.95)"><g class="bob b2"><g><path d="M-110,0 C-118,-90 -40,-140 40,-128 C100,-120 120,-70 112,-30 C150,-60 170,-50 160,-20 C150,10 120,0 110,-8 C100,0 -100,8 -110,0Z" fill="#4a78c8" stroke="#141010" stroke-width="7" stroke-linejoin="round"/><path d="M-100,-20 C-60,-6 60,-6 96,-24 C80,-2 -80,4 -100,-20Z" fill="#dbe8ff" stroke="#141010" stroke-width="4"/><path d="M-49,-74 q9,-9.9 18,0 M-15,-76 q9,-9.9 18,0" fill="none" stroke="#141010" stroke-width="5" stroke-linecap="round"/><path d="M-70,-48 C-56,-38 -40,-38 -28,-48" fill="none" stroke="#141010" stroke-width="4" stroke-linecap="round"/><path d="M10,-132 C4,-160 -10,-170 -20,-176 M10,-132 C16,-160 30,-170 40,-176" fill="none" stroke="#7fb2ff" stroke-width="6" stroke-linecap="round"/></g></g></g><g transform="translate(330,298) scale(1)"><g class="bob b3"><g><path d="M-60,0 C-70,-60 -50,-110 0,-110 C50,-110 70,-60 60,0Z" fill="#6cc46a" stroke="#141010" stroke-width="7" stroke-linejoin="round"/><circle cx="-26" cy="-112" r="20" fill="#6cc46a" stroke="#141010" stroke-width="6"/><circle cx="26" cy="-112" r="20" fill="#6cc46a" stroke="#141010" stroke-width="6"/><circle cx="-26" cy="-112" r="11" fill="#fff" stroke="#141010" stroke-width="5"/><circle cx="26" cy="-112" r="10.120000000000001" fill="#fff" stroke="#141010" stroke-width="5"/><circle cx="-24" cy="-113" r="4.62" fill="#141010"/><circle cx="28" cy="-113" r="4.2504" fill="#141010"/><path d="M-30,-66 C-12,-52 12,-52 30,-66" fill="none" stroke="#141010" stroke-width="5" stroke-linecap="round"/><path d="M-40,-30 C-20,-20 20,-20 40,-30" fill="none" stroke="#141010" stroke-width="4" opacity=".4"/><path d="M48,-140 C52,-130 54,-124 50,-118" stroke="#7fd3ff" stroke-width="5" fill="none" stroke-linecap="round"/></g></g></g><g transform="translate(500,298) scale(1.3)"><g class="bob b1"><g><path d="M-40,-178 L-56,-214 L-28,-192Z M40,-178 L56,-214 L28,-192Z" fill="#fff" stroke="#141010" stroke-width="6" stroke-linejoin="round"/><path d="M-62,0 L-62,-120 C-62,-168 -34,-190 0,-190 C34,-190 62,-168 62,-120 L62,0Z" fill="#2a2626" stroke="#141010" stroke-width="7" stroke-linejoin="round"/><ellipse cx="0" cy="-132" rx="45" ry="40" fill="#fff" stroke="#141010" stroke-width="6"/><path d="M-31,-134 q14,-15.400000000000002 28,0 M4,-135 q14,-15.400000000000002 28,0" fill="none" stroke="#141010" stroke-width="5" stroke-linecap="round"/><path d="M-6,-116 L6,-116 L0,-105Z" fill="#ff5f0a" stroke="#141010" stroke-width="3" stroke-linejoin="round"/><path d="M-58,-78 C-36,-66 36,-66 58,-78" fill="none" stroke="#141010" stroke-width="5"/><circle cx="0" cy="-48" r="24" fill="#ff5f0a" stroke="#141010" stroke-width="5"/><circle cx="-7" cy="-52" r="4.5" fill="#fff"/><circle cx="7" cy="-52" r="4.5" fill="#fff"/><path d="M-32,-50 C-36,-58 -22,-62 -20,-52Z M32,-50 C36,-58 22,-62 20,-52Z" fill="#fff" stroke="#141010" stroke-width="4" stroke-linejoin="round"/></g></g></g><g transform="translate(720,298) scale(1.08)"><g class="bob b4"><g><path d="M-40,-150 L-50,-205 L-14,-172Z M40,-150 L50,-205 L14,-172Z" fill="#e07a2e" stroke="#141010" stroke-width="6" stroke-linejoin="round"/><path d="M-52,0 L-46,-90 C-44,-160 44,-160 46,-90 L52,0Z" fill="#e07a2e" stroke="#141010" stroke-width="7" stroke-linejoin="round"/><path d="M-30,0 L-24,-60 L0,-40 L24,-60 L30,0Z" fill="#3b3b52" stroke="#141010" stroke-width="5" stroke-linejoin="round"/><path d="M-46,-120 C-34,-84 -12,-80 0,-72 C12,-80 34,-84 46,-120 C22,-106 -22,-106 -46,-120Z" fill="#fff" stroke="#141010" stroke-width="5" stroke-linejoin="round"/><path d="M-26,-126 L-10,-120 M26,-126 L10,-120" stroke="#141010" stroke-width="5" stroke-linecap="round"/><circle cx="-16" cy="-112" r="4.5" fill="#141010"/><circle cx="16" cy="-112" r="4.5" fill="#141010"/><circle cx="0" cy="-88" r="7" fill="#141010"/><path d="M-10,-78 C-4,-70 4,-70 10,-78" fill="none" stroke="#141010" stroke-width="4" stroke-linecap="round"/><path d="M46,-60 C76,-76 96,-92 116,-104" stroke="#e07a2e" stroke-width="14" stroke-linecap="round" fill="none"/></g></g></g><g transform="translate(560,70)" class="spin"><circle r="22" fill="#ff5f0a" stroke="#141010" stroke-width="5"/><circle cx="-6" cy="-4" r="4" fill="#fff"/><circle cx="6" cy="-4" r="4" fill="#fff"/></g><g transform="translate(250,90)" class="spin s2"><circle r="16" fill="#ffc93c" stroke="#141010" stroke-width="5"/></g></g></svg></div>
  </section>
 
+ <div class="steps">
+  <div class="step sk st1"><svg viewBox="-110 -225 220 235" aria-hidden="true"><g filter="url(#rough)"><g transform="scale(1)"><g><path d="M58,-110 C90,-130 120,-150 140,-170" fill="none" stroke="#2a2626" stroke-width="16" stroke-linecap="round"/><path d="M58,-110 C90,-130 120,-150 140,-170" fill="none" stroke="#141010" stroke-width="22" stroke-linecap="round" opacity=".25"/><path d="M-40,-178 L-56,-214 L-28,-192Z M40,-178 L56,-214 L28,-192Z" fill="#fff" stroke="#141010" stroke-width="6" stroke-linejoin="round"/><path d="M-62,0 L-62,-120 C-62,-168 -34,-190 0,-190 C34,-190 62,-168 62,-120 L62,0Z" fill="#2a2626" stroke="#141010" stroke-width="7" stroke-linejoin="round"/><ellipse cx="0" cy="-132" rx="45" ry="40" fill="#fff" stroke="#141010" stroke-width="6"/><circle cx="-17" cy="-136" r="14" fill="#fff" stroke="#141010" stroke-width="5"/><circle cx="18" cy="-137" r="12.88" fill="#fff" stroke="#141010" stroke-width="5"/><circle cx="-15" cy="-137" r="5.88" fill="#141010"/><circle cx="20" cy="-138" r="5.4096" fill="#141010"/><path d="M-6,-116 L6,-116 L0,-105Z" fill="#ff5f0a" stroke="#141010" stroke-width="3" stroke-linejoin="round"/><path d="M-58,-78 C-36,-66 36,-66 58,-78" fill="none" stroke="#141010" stroke-width="5"/><circle cx="0" cy="-48" r="24" fill="#ff5f0a" stroke="#141010" stroke-width="5"/><circle cx="-7" cy="-52" r="4.5" fill="#fff"/><circle cx="7" cy="-52" r="4.5" fill="#fff"/><path d="M-32,-50 C-36,-58 -22,-62 -20,-52Z M32,-50 C36,-58 22,-62 20,-52Z" fill="#fff" stroke="#141010" stroke-width="4" stroke-linejoin="round"/></g></g></g></svg><div><b>Vote</b><span>Back a plot with 0.1 NEAR or more.</span></div></div>
+  <div class="step sk st2"><svg viewBox="-110 -150 220 160" aria-hidden="true"><g filter="url(#rough)"><g transform="scale(1)"><g><path d="M-60,0 C-70,-60 -50,-110 0,-110 C50,-110 70,-60 60,0Z" fill="#6cc46a" stroke="#141010" stroke-width="7" stroke-linejoin="round"/><circle cx="-26" cy="-112" r="20" fill="#6cc46a" stroke="#141010" stroke-width="6"/><circle cx="26" cy="-112" r="20" fill="#6cc46a" stroke="#141010" stroke-width="6"/><path d="M-37,-110 q11,-12.100000000000001 22,0 M15,-110 q11,-12.100000000000001 22,0" fill="none" stroke="#141010" stroke-width="5" stroke-linecap="round"/><path d="M-30,-66 C-12,-52 12,-52 30,-66" fill="none" stroke="#141010" stroke-width="5" stroke-linecap="round"/><path d="M-40,-30 C-20,-20 20,-20 40,-30" fill="none" stroke="#141010" stroke-width="4" opacity=".4"/><path d="M48,-140 C52,-130 54,-124 50,-118" stroke="#7fd3ff" stroke-width="5" fill="none" stroke-linecap="round"/></g></g></g></svg><div><b>AI makes it</b><span>Written, drawn and minted by itself.</span></div></div>
+  <div class="step sk st3"><svg viewBox="-110 -190 220 200" aria-hidden="true"><g filter="url(#rough)"><g transform="scale(0.85)"><g><path d="M-110,0 C-118,-90 -40,-140 40,-128 C100,-120 120,-70 112,-30 C150,-60 170,-50 160,-20 C150,10 120,0 110,-8 C100,0 -100,8 -110,0Z" fill="#4a78c8" stroke="#141010" stroke-width="7" stroke-linejoin="round"/><path d="M-100,-20 C-60,-6 60,-6 96,-24 C80,-2 -80,4 -100,-20Z" fill="#dbe8ff" stroke="#141010" stroke-width="4"/><path d="M-49,-74 q9,-9.9 18,0 M-15,-76 q9,-9.9 18,0" fill="none" stroke="#141010" stroke-width="5" stroke-linecap="round"/><path d="M-70,-48 C-56,-38 -40,-38 -28,-48" fill="none" stroke="#141010" stroke-width="4" stroke-linecap="round"/><path d="M10,-132 C4,-160 -10,-170 -20,-176 M10,-132 C16,-160 30,-170 40,-176" fill="none" stroke="#7fb2ff" stroke-width="6" stroke-linecap="round"/></g></g></g></svg><div><b>Get paid</b><span>Winners split half the pot.</span></div></div>
+ </div>
+
  <section class="row" id="vote" aria-label="Vote and prize">
-  <div class="card">
-   <div class="vhead"><div><h2 id="vote-h">What happens next?</h2><p class="sub" style="margin:0">Back the plot you think will win.</p></div><div><span class="tlabel">vote closes in</span><span class="timer" id="timer">--:--:--</span></div></div>
-   <div class="amt" role="group" aria-label="Vote amount"><span class="help">Vote with</span><button type="button" class="on" data-v="0.1">0.1 Ⓝ</button><button type="button" data-v="0.5">0.5 Ⓝ</button><button type="button" data-v="1">1 Ⓝ</button><button type="button" data-v="5">5 Ⓝ</button></div>
-   <div id="opts"><p class="help">Loading the vote…</p></div>
-   <form class="own" id="pitch"><label for="pitchTxt" style="position:absolute;left:-9999px">Your plot</label><input id="pitchTxt" maxlength="120" placeholder="Pitch your own plot (1 NEAR)"><button type="submit" class="ghost">Pitch it</button></form>
-   <p class="note">Your plot wins? You get the episode NFT, 12% of the pot, and 60% of every tip on it, forever.</p>
+  <div class="sk pad">
+   <div class="vtop"><h2 id="vote-h">Now voting</h2><span class="clock" title="Vote closes in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 3h6"/></svg><span id="timer">--:--</span></span></div>
+   <div class="amt" role="group" aria-label="Vote amount"><span class="lbl">Vote with</span><button type="button" class="sk on" data-v="0.1">0.1 Ⓝ</button><button type="button" class="sk" data-v="0.5">0.5 Ⓝ</button><button type="button" class="sk" data-v="1">1 Ⓝ</button><button type="button" class="sk" data-v="5">5 Ⓝ</button></div>
+   <div class="opts" id="opts"><p class="hand">Loading the vote…</p></div>
+   <form class="own" id="pitch"><label for="pitchTxt" style="position:absolute;left:-9999px">Your plot</label><input id="pitchTxt" maxlength="120" placeholder="Your own plot idea… (1 NEAR)"><button type="submit" class="light sk">Pitch</button></form>
+   <p class="note">Your plot wins? You get the episode NFT, 12% of the pot and 60% of every tip on it.</p>
   </div>
-  <div class="card">
-   <h2>This round's prize</h2>
-   <p class="sub" style="margin:0">Grows with every vote and pitch.</p>
+  <div class="sk pad prize">
+   <h2>The pot</h2>
    <div class="potbig"><span id="pot">0</span><small>NEAR</small></div>
    <div class="stack" id="potStack" aria-hidden="true"></div>
    <ul class="split" id="potSplit"></ul>
-   <div class="mywin" id="mywin">
-    <div><small>Your winnings</small><b id="myAmt">-</b> <span class="help">NEAR</span></div>
-    <button type="button" class="green" id="claim" disabled>Claim</button>
+   <div class="mywin sk">
+    <div><small>Your winnings</small><b id="myAmt">-</b></div>
+    <button type="button" class="green sk" id="claim" disabled>Claim</button>
    </div>
-   <p class="note" id="mywinNote">Connect your wallet to see what you have won.</p>
+   <p class="note" id="mywinNote" style="color:var(--ink)">Connect your wallet to see what you won.</p>
   </div>
  </section>
 
  <section aria-labelledby="ep-h">
-  <div class="meta" style="margin:0 0 10px">
-   <div><h2 id="ep-h">Latest episode</h2><p class="sub" id="ep-sub" style="margin:0">written and drawn by the Owl Toons agent</p></div>
-   <div class="chips" id="ep-chips"></div>
-  </div>
-  <div class="comic" id="comic"><div class="empty">The first episode is being voted on right now.<br>Vote above and it gets made when the timer ends.</div></div>
-  <div class="meta" id="tipRow" hidden>
-   <span id="tipInfo" class="help"></span>
-   <span class="chips"><button type="button" data-tip="0.1">Tip 0.1 Ⓝ</button><button type="button" data-tip="0.5">Tip 0.5 Ⓝ</button><button type="button" data-tip="1">Tip 1 Ⓝ</button></span>
+  <div class="shead"><div><span class="tag" id="ep-tag">Latest episode</span><h2 id="ep-h" style="margin-top:10px">Coming soon</h2></div><div class="chips" id="ep-chips"></div></div>
+  <div class="sk epwrap"><div class="epbox" id="comic"><div class="empty"><svg viewBox="-110 -225 220 235" aria-hidden="true"><g filter="url(#rough)"><g transform="scale(1)"><g><path d="M-40,-178 L-56,-214 L-28,-192Z M40,-178 L56,-214 L28,-192Z" fill="#fff" stroke="#141010" stroke-width="6" stroke-linejoin="round"/><path d="M-62,0 L-62,-120 C-62,-168 -34,-190 0,-190 C34,-190 62,-168 62,-120 L62,0Z" fill="#2a2626" stroke="#141010" stroke-width="7" stroke-linejoin="round"/><ellipse cx="0" cy="-132" rx="45" ry="40" fill="#fff" stroke="#141010" stroke-width="6"/><path d="M-31,-136 q14,11.200000000000001 28,0 M4,-137 q14,11.200000000000001 28,0" fill="none" stroke="#141010" stroke-width="5" stroke-linecap="round"/><path d="M-6,-116 L6,-116 L0,-105Z" fill="#ff5f0a" stroke="#141010" stroke-width="3" stroke-linejoin="round"/><path d="M-58,-78 C-36,-66 36,-66 58,-78" fill="none" stroke="#141010" stroke-width="5"/><circle cx="0" cy="-48" r="24" fill="#ff5f0a" stroke="#141010" stroke-width="5"/><circle cx="-7" cy="-52" r="4.5" fill="#fff"/><circle cx="7" cy="-52" r="4.5" fill="#fff"/><path d="M-32,-50 C-36,-58 -22,-62 -20,-52Z M32,-50 C36,-58 22,-62 20,-52Z" fill="#fff" stroke="#141010" stroke-width="4" stroke-linejoin="round"/></g></g></g></svg>The first episode is being voted on.<br>Vote above, it gets made when the timer ends.</div></div></div>
+  <div class="eprow" id="tipRow" hidden>
+   <span id="tipInfo" class="hand" style="font-size:20px;color:var(--ink)"></span>
+   <span class="chips"><button type="button" class="light sk" id="shareLast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13"/></svg>Share</button><button type="button" class="sk" data-tip="0.1">Tip 0.1 Ⓝ</button><button type="button" class="sk" data-tip="1">Tip 1 Ⓝ</button></span>
   </div>
  </section>
 
- <section class="money" aria-labelledby="money-h">
-  <h2 id="money-h">How the money moves</h2>
-  <p class="sub">Fixed in the contract. The agent can't change it and can't take it.</p>
+ <section class="sk money" aria-labelledby="money-h">
+  <h2 id="money-h">Where the money goes</h2>
+  <p class="hand">Written into the contract. Nobody can change it or take it.</p>
   <div class="mgrid">
    <div class="mcard">
-    <h3>The vote pot (every round)</h3>
+    <h3>Every vote round</h3>
     <div class="stack" id="rulesStack" aria-hidden="true"></div>
     <ul class="split" id="rulesSplit"></ul>
    </div>
    <div class="mcard">
-    <h3>Tips on an episode</h3>
+    <h3>Every tip</h3>
     <div class="pieRow">
      <div class="pie" style="background:conic-gradient(var(--g) 0 60%,var(--o) 0 85%,var(--p) 0)" aria-hidden="true"></div>
      <ul class="split">
-      <li><i class="dot" style="background:var(--g)"></i><span>Episode NFT owner<small>the fan whose plot won, or whoever buys the NFT</small></span><b>60%</b></li>
-      <li><i class="dot" style="background:var(--o)"></i><span>HOODL treasury<small>buyback and burn</small></span><b>25%</b></li>
-      <li><i class="dot" style="background:var(--p)"></i><span>Agent's AI budget<small>pays for writing and drawing</small></span><b>15%</b></li>
+      <li><i class="dot" style="background:var(--g)"></i><span>Episode owner<small>whoever holds the NFT</small></span><b>60%</b></li>
+      <li><i class="dot" style="background:var(--o)"></i><span>Buyback &amp; burn<small>$HOODL treasury</small></span><b>25%</b></li>
+      <li><i class="dot" style="background:var(--p)"></i><span>The AI<small>pays for writing and drawing</small></span><b>15%</b></li>
      </ul>
     </div>
    </div>
   </div>
-  <div class="burn"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ff5f0a" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true" style="flex:none"><path d="M12 2c1 4 5 5.5 5 11a5 5 0 0 1-10 0c0-3 2-4 2-7 2 1 3 3 3 5 1-1 1-3 0-9z"/></svg><span>Every NEAR that reaches the treasury is used to <b>buy back $HOODL and burn it</b>. More episodes, more tips, less $HOODL.</span></div>
+  <div class="burn"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><path d="M12 2c1 4 5 5.5 5 11a5 5 0 0 1-10 0c0-3 2-4 2-7 2 1 3 3 3 5 1-1 1-3 0-9z"/></svg><span>More episodes, more burn. Less $HOODL.</span></div>
  </section>
 
  <section class="row" aria-label="The agent">
-  <div class="card">
+  <div class="sk pad">
    <h2>The agent's wallet</h2>
-   <p class="sub">It runs the studio on its own and pays its own AI bill.</p>
+   <p class="hand" style="margin:6px 0 0">It runs the studio and pays its own AI bill.</p>
    <div class="stats">
-    <div class="stat"><small>Fans paid in</small><b id="sEarned">0</b> <small>NEAR</small></div>
-    <div class="stat"><small>Paid to fans</small><b id="sFans">0</b> <small>NEAR</small></div>
-    <div class="stat"><small>To burn</small><b id="sTreasury">0</b> <small>NEAR</small></div>
-    <div class="stat"><small>AI bill paid</small><b id="sAi">0</b> <small>NEAR</small></div>
-    <div class="stat"><small>AI budget</small><b id="sRes">0</b> <small>NEAR</small></div>
+    <div class="stat"><small>Fans paid in</small><b id="sEarned">0</b></div>
+    <div class="stat"><small>Paid to fans</small><b id="sFans">0</b></div>
+    <div class="stat"><small>Sent to burn</small><b id="sTreasury">0</b></div>
+    <div class="stat"><small>AI bill paid</small><b id="sAi">0</b></div>
+    <div class="stat"><small>AI budget</small><b id="sRes">0</b></div>
     <div class="stat"><small>Episodes</small><b id="sEps">0</b></div>
    </div>
   </div>
-  <div class="card">
+  <div class="sk pad">
    <h2>What it's doing</h2>
-   <p class="sub">Every line links to a NEAR transaction.</p>
-   <ul class="log" id="log"><li>The agent's activity shows up here.</li></ul>
+   <ul class="log" id="log"><li>The agent's moves show up here.</li></ul>
   </div>
  </section>
 
  <section aria-labelledby="past-h">
-  <h2 id="past-h">All episodes</h2>
-  <div class="past" id="past"><p class="help">No episodes yet. The first one is being voted on.</p></div>
+  <div class="shead"><h2 id="past-h">All episodes</h2></div>
+  <div class="past" id="past"><p class="hand">No episodes yet. The first one is being voted on.</p></div>
  </section>
 
- <section class="card help" aria-labelledby="try-h">
-  <h2 id="try-h">Try it with free test NEAR</h2>
+ <section class="sk try" aria-labelledby="try-h">
+  <h2 id="try-h">Try it free</h2>
   <ol>
-   <li>Make a free testnet wallet at <a href="https://testnet.mynearwallet.com" target="_blank" rel="noopener">testnet.mynearwallet.com</a> or in Meteor Wallet (switch it to testnet).</li>
-   <li>Tap <b>Connect wallet</b>, then vote on a plot or pitch your own.</li>
-   <li>When the timer ends, the agent makes the episode by itself. If you backed the winner, tap <b>Claim</b>.</li>
+   <li>Get a free testnet wallet at <a href="https://testnet.mynearwallet.com" target="_blank" rel="noopener">testnet.mynearwallet.com</a> (it comes with test NEAR).</li>
+   <li>Tap <b>Connect wallet</b> and vote.</li>
+   <li>Backed the winner? Tap <b>Claim</b>.</li>
   </ol>
-  <p>Contract: <a id="cLink" target="_blank" rel="noopener" href="#"><code id="cName">-</code></a> · Agent: <a id="aLink" target="_blank" rel="noopener" href="#"><code id="aName">-</code></a></p>
+  <p>Contract <a id="cLink" target="_blank" rel="noopener" href="#"><code id="cName">-</code></a> · Agent <a id="aLink" target="_blank" rel="noopener" href="#"><code id="aName">-</code></a> · <a href="https://github.com/justhoodl/hoodlowl-toons" target="_blank" rel="noopener">Code</a></p>
  </section>
 
- <footer>Owl Toons · built for the NEAR Hackathon by <a href="/">$HOODL</a> · fans pick the story, the AI makes the cartoon, the fans get paid</footer>
+ <footer>Owl Toons · made for the NEAR Hackathon by <a href="/">$HOODL</a></footer>
 </div>
 
-<div class="guide" id="guide" hidden role="dialog" aria-modal="true" aria-labelledby="g-h">
- <div class="gbox" id="gbox">
-  <div class="gtop"><img src="/owl.png" alt=""><div><h3 id="g-h">How Owl Toons works</h3><div class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div><button type="button" class="x" id="gClose">Close</button></div>
+<div class="ovl" id="guide" hidden role="dialog" aria-modal="true" aria-labelledby="g-h">
+ <div class="gbox sk" id="gbox">
+  <div class="gtop"><svg class="av" viewBox="-110 -225 220 235" aria-hidden="true"><g><path d="M-40,-178 L-56,-214 L-28,-192Z M40,-178 L56,-214 L28,-192Z" fill="#fff" stroke="#141010" stroke-width="6" stroke-linejoin="round"/><path d="M-62,0 L-62,-120 C-62,-168 -34,-190 0,-190 C34,-190 62,-168 62,-120 L62,0Z" fill="#2a2626" stroke="#141010" stroke-width="7" stroke-linejoin="round"/><ellipse cx="0" cy="-132" rx="45" ry="40" fill="#fff" stroke="#141010" stroke-width="6"/><path d="M-31,-134 q14,-15.400000000000002 28,0 M4,-135 q14,-15.400000000000002 28,0" fill="none" stroke="#141010" stroke-width="5" stroke-linecap="round"/><path d="M-6,-116 L6,-116 L0,-105Z" fill="#ff5f0a" stroke="#141010" stroke-width="3" stroke-linejoin="round"/><path d="M-58,-78 C-36,-66 36,-66 58,-78" fill="none" stroke="#141010" stroke-width="5"/><circle cx="0" cy="-48" r="24" fill="#ff5f0a" stroke="#141010" stroke-width="5"/><circle cx="-7" cy="-52" r="4.5" fill="#fff"/><circle cx="7" cy="-52" r="4.5" fill="#fff"/><path d="M-32,-50 C-36,-58 -22,-62 -20,-52Z M32,-50 C36,-58 22,-62 20,-52Z" fill="#fff" stroke="#141010" stroke-width="4" stroke-linejoin="round"/></g></svg><div><h3 id="g-h">How Owl Toons works</h3><div class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div><button type="button" class="x sk" id="gClose">Close</button></div>
   <ol class="glines" id="glines"></ol>
-  <div class="gctl"><button type="button" id="gPlay">Pause</button><button type="button" class="ghost" id="gRestart">Start over</button></div>
-  <p class="note" id="gNote" style="color:var(--nmute)"></p>
+  <div class="gctl"><button type="button" class="sk" id="gPlay">Pause</button><button type="button" class="light sk" id="gRestart">Start over</button></div>
+  <p class="note" id="gNote" style="color:var(--nm)"></p>
  </div>
 </div>
-<div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-labelledby="v-h">
- <div class="vtop"><h3 id="v-h">Episode</h3><button type="button" id="vClose">Close</button></div>
- <div class="vstage" id="vStage"><img id="vImg" alt=""></div>
- <div class="vbot"><span class="count" id="vCount"></span><span class="chips" id="vTips"></span><span class="navb"><button type="button" class="ghost" id="vPrev">Prev</button><button type="button" class="ghost" id="vNext">Next</button></span></div>
+
+<div class="player" id="player" hidden role="dialog" aria-modal="true" aria-labelledby="p-h">
+ <div class="ptop"><h3 id="p-h">Episode</h3><button type="button" class="x sk" id="pClose">Close</button></div>
+ <div class="stage" id="stage"></div>
+ <div class="sub" id="psub" aria-live="polite"></div>
+ <div class="pbot">
+  <button type="button" class="light sk" id="pPrev" aria-label="Previous episode">‹</button>
+  <span class="pcount" id="pCount"></span>
+  <button type="button" class="light sk" id="pNext" aria-label="Next episode">›</button>
+  <button type="button" class="sk" id="pPlay">Replay</button>
+  <button type="button" class="light sk" id="pMute">Sound on</button>
+  <button type="button" class="light sk" id="pShare">Share</button>
+  <button type="button" class="green sk" id="pTip">Tip 0.1 Ⓝ</button>
+ </div>
+</div>
+
+<div class="ovl" id="shareBox" hidden role="dialog" aria-modal="true" aria-labelledby="s-h">
+ <div class="share sk">
+  <h3 id="s-h">Share this episode</h3>
+  <div class="sgrid">
+   <a class="btn dark sk" id="shX" target="_blank" rel="noopener" href="#" style="--fill:var(--ink)">Post on X</a>
+   <a class="btn sk" id="shTg" target="_blank" rel="noopener" href="#" style="--fill:#229ed9">Send on Telegram</a>
+   <button type="button" class="light sk" id="shCopy">Copy link</button>
+   <button type="button" class="light sk" id="shClose">Close</button>
+  </div>
+ </div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -302,25 +376,26 @@ const near = y => { const v = Number(BigInt(y || '0') / 10n ** 20n) / 1e4; retur
 const toYocto = n => (BigInt(Math.round(Number(n) * 1e4)) * 10n ** 20n).toString();
 const TG = n => (BigInt(n) * 10n ** 12n).toString();
 const short = a => a && a.length > 26 ? a.slice(0, 10) + '…' + a.slice(-8) : a;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 let S = null, wallet = null, account = null, voteAmt = '0.1', NET = 'testnet', myEarn = 0n;
 const explorer = () => NET === 'mainnet' ? 'https://nearblocks.io' : 'https://testnet.nearblocks.io';
 function toast(t) { const e = $('#toast'); e.textContent = t; e.classList.add('show'); clearTimeout(e._t); e._t = setTimeout(() => e.classList.remove('show'), 3200); }
+function lock(on) { document.body.style.overflow = on ? 'hidden' : ''; }
 
 // the pot rules, as in the contract (basis points)
 const POT = [
   { k: 'Fans who backed the winner', d: 'split by how much each voted', bps: 5000, c: 'var(--g)' },
-  { k: '1st place pitcher', d: 'whoever pitched the winning plot', bps: 1200, c: 'var(--y)' },
-  { k: '2nd place pitcher', d: '', bps: 500, c: 'var(--b)' },
-  { k: '3rd place pitcher', d: '', bps: 300, c: '#7dd3fc' },
-  { k: 'HOODL treasury', d: 'buyback and burn', bps: 2000, c: 'var(--o)' },
-  { k: "Agent's AI budget", d: 'pays for writing and drawing', bps: 1000, c: 'var(--p)' }
+  { k: '1st place plot', d: 'whoever pitched it', bps: 1200, c: 'var(--y)' },
+  { k: '2nd place plot', d: '', bps: 500, c: 'var(--sky)' },
+  { k: '3rd place plot', d: '', bps: 300, c: '#ffffff' },
+  { k: 'Buyback & burn', d: '$HOODL treasury', bps: 2000, c: 'var(--o)' },
+  { k: 'The AI', d: 'pays for writing and drawing', bps: 1000, c: 'var(--p)' }
 ];
-const stackHTML = () => POT.map(p => '<i style="width:' + p.bps / 100 + '%;background:' + p.c + '"></i>').join('');
-$('#potStack').innerHTML = $('#rulesStack').innerHTML = stackHTML();
+$('#potStack').innerHTML = $('#rulesStack').innerHTML = POT.map(p => '<i style="width:' + p.bps / 100 + '%;background:' + p.c + '"></i>').join('');
 $('#rulesSplit').innerHTML = POT.map(p => '<li><i class="dot" style="background:' + p.c + '"></i><span>' + esc(p.k) + (p.d ? '<small>' + esc(p.d) + '</small>' : '') + '</span><b>' + p.bps / 100 + '%</b></li>').join('');
 function renderPot(pot) {
   $('#pot').textContent = near(pot);
-  $('#potSplit').innerHTML = POT.map(p => '<li><i class="dot" style="background:' + p.c + '"></i><span>' + esc(p.k) + ' <small>' + p.bps / 100 + '%' + (p.d ? ' · ' + esc(p.d) : '') + '</small></span><b>' + near((BigInt(pot) * BigInt(p.bps) / 10000n).toString()) + '</b></li>').join('');
+  $('#potSplit').innerHTML = POT.map(p => '<li><i class="dot" style="background:' + p.c + '"></i><span>' + esc(p.k) + ' <small>' + p.bps / 100 + '%</small></span><b>' + near((BigInt(pot) * BigInt(p.bps) / 10000n).toString()) + '</b></li>').join('');
 }
 renderPot('0');
 
@@ -342,103 +417,75 @@ async function call(method, args, depositNear, gasT) {
 }
 
 async function loadEarn() {
-  if (!account) { myEarn = 0n; $('#myAmt').textContent = '-'; $('#claim').disabled = true; $('#mywinNote').textContent = 'Connect your wallet to see what you have won.'; return; }
+  if (!account) { myEarn = 0n; $('#myAmt').textContent = '-'; $('#claim').disabled = true; $('#mywinNote').textContent = 'Connect your wallet to see what you won.'; return; }
   try {
     const r = await fetch('/api/toons?earn=' + encodeURIComponent(account), { cache: 'no-store' }).then(r => r.json());
     myEarn = BigInt(r.earnings || '0');
-    $('#myAmt').textContent = near(myEarn.toString()); $('#claim').disabled = myEarn === 0n;
-    $('#mywinNote').textContent = myEarn > 0n ? 'You called it. Tap Claim to send it to your wallet.' : 'Nothing yet. Back the winning plot or pitch a top 3 plot to earn.';
+    $('#myAmt').textContent = near(myEarn.toString()) + ' Ⓝ'; $('#claim').disabled = myEarn === 0n;
+    $('#mywinNote').textContent = myEarn > 0n ? 'You called it. Tap Claim.' : 'Back the winning plot to earn.';
   } catch (e) {}
 }
 $('#claim').onclick = async () => { const b = $('#claim'); b.disabled = true; const r = await call('claim', {}, 0, 30); if (r) toast('Claimed ' + near(myEarn.toString()) + ' NEAR'); else b.disabled = false; };
 
 function renderVote() {
   const R = S.round, open = R.options.length && Date.now() < R.closes_at;
-  $('#vote-h').textContent = 'What happens in episode ' + R.episode + '?';
+  $('#vote-h').textContent = 'Episode ' + R.episode + ': what happens?';
   renderPot(R.pot || '0');
-  if (!R.options.length) { $('#opts').innerHTML = '<p class="help">The agent is making the next episode right now. A new vote opens in a few minutes.</p>'; $('#pitch').hidden = true; return; }
+  if (!R.options.length) { $('#opts').innerHTML = '<p class="closed">The AI is making the next episode right now. A new vote opens in a few minutes.</p>'; $('#pitch').hidden = true; return; }
   const tot = R.options.reduce((a, o) => a + BigInt(o.votes), 0n);
   S._open = !!open;
   const order = R.options.map((o, i) => i).sort((a, b) => { const d = BigInt(R.options[b].votes) - BigInt(R.options[a].votes); return d > 0n ? 1 : d < 0n ? -1 : a - b; });
   const place = {}; order.forEach((idx, r) => { if (BigInt(R.options[idx].votes) > 0n && r < 3) place[idx] = ['1st', '2nd', '3rd'][r]; });
-  $('#opts').innerHTML = R.options.map((o, i) => {
+  $('#opts').innerHTML = (open ? '' : '<p class="closed">Vote closed. The AI is making the episode now. The next vote opens in a few minutes.</p>') + R.options.map((o, i) => {
     const mineB = account && (o.backers || []).find(b => b[0] === account);
     const pct = tot > 0n ? Number(BigInt(o.votes) * 1000n / tot) / 10 : 0;
-    const who = o.by === S.agent ? 'idea from the agent' : 'pitched by ' + esc(short(o.by));
-    return '<div class="opt' + (place[i] === '1st' ? ' lead' : '') + '"><div style="min-width:0"><div class="t">' + (place[i] ? '<span class="rank">' + place[i] + '</span>' : '') + esc(o.text) + '</div><div class="by">' + who + ' · ' + o.voters + ' voter' + (o.voters === 1 ? '' : 's') + ' · ' + near(o.votes) + ' NEAR' + (mineB ? ' · <span class="mine">you backed this with ' + near(mineB[1]) + '</span>' : '') + '</div></div><button type="button" data-o="' + i + '"' + (open ? '' : ' disabled') + '>Vote</button><div class="bar"><i style="width:' + pct + '%"></i></div></div>';
+    const who = o.by === S.agent ? 'idea from the AI' : 'by ' + esc(short(o.by));
+    return '<div class="opt sk' + (place[i] === '1st' ? ' lead' : '') + '"><div style="min-width:0"><div class="t">' + (place[i] ? '<span class="rank">' + place[i] + '</span>' : '') + esc(o.text) + '</div><div class="by">' + who + ' · ' + o.voters + ' voter' + (o.voters === 1 ? '' : 's') + ' · ' + near(o.votes) + ' Ⓝ' + (mineB ? ' · <span class="mine">you: ' + near(mineB[1]) + ' Ⓝ</span>' : '') + '</div></div><button type="button" class="sk" data-o="' + i + '"' + (open ? '' : ' disabled') + '>Vote</button><div class="bar"><i style="width:' + pct + '%"></i></div></div>';
   }).join('');
   $('#pitch').hidden = !open || R.options.length >= 6;
-  if (!open) $('#opts').insertAdjacentHTML('afterbegin', '<p class="help"><b>This vote is closed.</b> The agent is making the episode now. The next vote opens in a few minutes, this page updates by itself.</p>');
 }
+function paidFans(e) { return (e.payouts || []).slice(0, 4).reduce((a, x) => a + BigInt(x), 0n); }
 function renderEpisode() {
   const eps = S.episodes || [], last = eps[eps.length - 1];
   if (!last) return;
-  $('#ep-h').textContent = 'Episode ' + last.number + ': ' + last.title;
-  $('#ep-sub').textContent = 'plot: ' + last.plot;
-  $('#comic').innerHTML = '<a href="/api/toons?ep=' + last.number + '" data-view="' + last.number + '"><img src="/api/toons?ep=' + last.number + '" alt="Owl Toons episode ' + last.number + ': ' + esc(last.title) + '" width="1216" height="1078"></a>';
-  const paid = (last.payouts || []).slice(0, 4).reduce((a, x) => a + BigInt(x), 0n);
-  $('#ep-chips').innerHTML = '<span class="chip o">NFT #' + last.number + '</span><span class="chip">plot by ' + esc(last.plot_by === S.agent ? 'the agent' : short(last.plot_by)) + '</span>' + (paid > 0n ? '<span class="chip">paid fans ' + near(paid.toString()) + ' NEAR</span>' : '');
+  $('#ep-tag').textContent = 'Episode ' + last.number;
+  $('#ep-h').textContent = last.title;
+  $('#comic').innerHTML = '<img src="/api/toons?ep=' + last.number + '" alt="Owl Toons episode ' + last.number + ': ' + esc(last.title) + '" width="1216" height="1078"><button type="button" class="play sk" data-view="' + last.number + '"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Play episode</button>';
+  $('#comic').dataset.view = last.number;
+  const paid = paidFans(last);
+  $('#ep-chips').innerHTML = '<span class="chip o">NFT #' + last.number + '</span><span class="chip">plot by ' + esc(last.plot_by === S.agent ? 'the AI' : short(last.plot_by)) + '</span>' + (paid > 0n ? '<span class="chip">paid fans ' + near(paid.toString()) + ' Ⓝ</span>' : '');
   $('#tipRow').hidden = false;
-  $('#tipInfo').innerHTML = '<b>' + near(last.tips) + ' NEAR</b> tipped by ' + last.tippers + ' fan' + (last.tippers === 1 ? '' : 's') + ' · 60% goes to the NFT owner';
+  $('#tipInfo').textContent = near(last.tips) + ' Ⓝ tipped by ' + last.tippers + ' fan' + (last.tippers === 1 ? '' : 's');
   $('#tipRow').dataset.ep = last.number;
-  $('#past').innerHTML = eps.slice().reverse().map(e => { const p = (e.payouts || []).slice(0, 4).reduce((a, x) => a + BigInt(x), 0n); return '<a class="ep" href="/api/toons?ep=' + e.number + '" data-view="' + e.number + '"><img src="/api/toons?ep=' + e.number + '" alt="" loading="lazy" width="1216" height="1078"><div>#' + e.number + ': ' + esc(e.title) + '<small>paid fans ' + near(p.toString()) + ' NEAR · ' + near(e.tips) + ' NEAR tips · plot by ' + esc(e.plot_by === S.agent ? 'the agent' : short(e.plot_by)) + '</small></div></a>'; }).join('');
+  $('#past').innerHTML = eps.slice().reverse().map(e => '<a class="ep sk" href="#ep' + e.number + '" data-view="' + e.number + '"><img src="/api/toons?ep=' + e.number + '" alt="" loading="lazy" width="1216" height="1078"><div>#' + e.number + ' ' + esc(e.title) + '<small>paid fans ' + near(paidFans(e).toString()) + ' Ⓝ · tips ' + near(e.tips) + ' Ⓝ</small></div></a>').join('');
 }
 function renderAgent() {
   const s = S.stats;
   $('#sEarned').textContent = near(s.earned); $('#sTreasury').textContent = near(s.to_treasury); $('#sFans').textContent = near(s.to_fans);
   $('#sAi').textContent = near(s.spent_on_ai); $('#sRes').textContent = near(s.reserve); $('#sEps').textContent = s.episodes;
   const L = []; for (const g of S.log || []) for (const l of g.lines) L.push({ at: g.at, l });
-  if (L.length) $('#log').innerHTML = L.slice(0, 10).map(x => '<li><time>' + new Date(x.at).toUTCString().slice(17, 22) + ' UTC</time>' + esc(x.l).replace(/tx ([1-9A-HJ-NP-Za-km-z]{40,50})/, (m, h) => '<a href="' + explorer() + '/txns/' + h + '" target="_blank" rel="noopener">view tx</a>') + '</li>').join('');
+  if (L.length) $('#log').innerHTML = L.slice(0, 8).map(x => '<li><time>' + new Date(x.at).toUTCString().slice(17, 22) + ' UTC</time>' + esc(x.l).replace(/tx ([1-9A-HJ-NP-Za-km-z]{40,50})/, (m, h) => '<a href="' + explorer() + '/txns/' + h + '" target="_blank" rel="noopener">see tx</a>') + '</li>').join('');
   $('#cName').textContent = S.contract; $('#cLink').href = explorer() + '/address/' + S.contract;
   $('#aName').textContent = S.agent; $('#aLink').href = explorer() + '/address/' + S.agent;
-  $('#net').textContent = 'NEAR ' + NET;
 }
+let firstLoad = true;
 async function load() {
-  try { S = await fetch('/api/toons?state=1', { cache: 'no-store' }).then(r => r.json()); if (S.error) throw new Error(S.error); NET = S.network; renderVote(); renderEpisode(); renderAgent(); }
-  catch (e) { $('#opts').innerHTML = '<p class="help">Could not load the studio right now. Refresh in a minute.</p>'; }
+  try {
+    S = await fetch('/api/toons?state=1', { cache: 'no-store' }).then(r => r.json()); if (S.error) throw new Error(S.error); NET = S.network; renderVote(); renderEpisode(); renderAgent();
+    if (firstLoad) { firstLoad = false; const m = /^#ep(\d+)$/.exec(location.hash); if (m) pOpen(Number(m[1])); }
+  } catch (e) { $('#opts').innerHTML = '<p class="hand">Could not load the studio. Refresh in a minute.</p>'; }
 }
-setInterval(() => { if (!S) return; const ms = S.round.closes_at - Date.now(); if (!S.round.options.length) { $('#timer').textContent = 'making it'; return; } if (ms <= 0) { $('#timer').textContent = 'closed'; if (S._open) renderVote(); return; } const h = Math.floor(ms / 3600e3), m = Math.floor(ms % 3600e3 / 6e4), s = Math.floor(ms % 6e4 / 1e3); $('#timer').textContent = [h, m, s].map(x => String(x).padStart(2, '0')).join(':'); }, 1000);
+setInterval(() => { if (!S) return; const ms = S.round.closes_at - Date.now(); if (!S.round.options.length) { $('#timer').textContent = 'drawing'; return; } if (ms <= 0) { $('#timer').textContent = 'closed'; if (S._open) renderVote(); return; } const h = Math.floor(ms / 3600e3), m = Math.floor(ms % 3600e3 / 6e4), s = Math.floor(ms % 6e4 / 1e3); $('#timer').textContent = (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(s).padStart(2, '0'); }, 1000);
 setInterval(load, 30000);
 document.querySelectorAll('.amt button').forEach(b => b.onclick = () => { voteAmt = b.dataset.v; document.querySelectorAll('.amt button').forEach(x => x.classList.toggle('on', x === b)); });
 $('#opts').addEventListener('click', async e => { const b = e.target.closest('button[data-o]'); if (!b) return; b.disabled = true; const r = await call('vote', { option: Number(b.dataset.o) }, voteAmt); b.disabled = false; if (r) toast('Vote sent: ' + voteAmt + ' NEAR'); });
-$('#pitch').addEventListener('submit', async e => { e.preventDefault(); const t = $('#pitchTxt').value.trim(); if (t.length < 5) { toast('Write a plot of at least 5 characters'); return; } const r = await call('pitch', { text: t }, '1'); if (r) { $('#pitchTxt').value = ''; toast('Plot pitched. Now get people to vote for it.'); } });
+$('#pitch').addEventListener('submit', async e => { e.preventDefault(); const t = $('#pitchTxt').value.trim(); if (t.length < 5) { toast('Write a plot of at least 5 characters'); return; } const r = await call('pitch', { text: t }, '1'); if (r) { $('#pitchTxt').value = ''; toast('Plot pitched. Get people to vote for it.'); } });
 document.querySelectorAll('[data-tip]').forEach(b => b.onclick = async () => { const ep = Number($('#tipRow').dataset.ep); if (!ep) return; const r = await call('tip', { episode: ep }, b.dataset.tip); if (r) toast(b.dataset.tip + ' NEAR tipped and split on chain'); });
 load();
 
-// ---------- episode viewer: swipe or tap through episodes ----------
-let vi = 0;
-const vEps = () => (S && S.episodes) || [];
-function vShow(i) {
-  const E = vEps(); if (!E.length) return; vi = Math.max(0, Math.min(E.length - 1, i)); const e = E[vi];
-  $('#vImg').src = '/api/toons?ep=' + e.number; $('#vImg').alt = 'Episode ' + e.number + ': ' + e.title;
-  $('#v-h').textContent = '#' + e.number + ': ' + e.title;
-  $('#vCount').textContent = (vi + 1) + ' of ' + E.length;
-  $('#vPrev').disabled = vi === 0; $('#vNext').disabled = vi === E.length - 1;
-  $('#vTips').innerHTML = '<button type="button" data-vtip="0.1">Tip 0.1 Ⓝ</button>';
-}
-function vOpen(n) { const i = vEps().findIndex(e => e.number === n); if (i < 0) return false; $('#viewer').hidden = false; document.body.style.overflow = 'hidden'; vShow(i); return true; }
-function vClose() { $('#viewer').hidden = true; document.body.style.overflow = ''; }
-document.addEventListener('click', e => { const a = e.target.closest('[data-view]'); if (!a) return; if (vOpen(Number(a.dataset.view))) e.preventDefault(); });
-$('#vClose').onclick = vClose; $('#vPrev').onclick = () => vShow(vi - 1); $('#vNext').onclick = () => vShow(vi + 1);
-$('#vStage').addEventListener('click', e => { if (e.target.id === 'vStage') vClose(); });
-$('#vTips').addEventListener('click', async e => { const b = e.target.closest('[data-vtip]'); if (!b) return; const ep = vEps()[vi]; if (!ep) return; const r = await call('tip', { episode: ep.number }, b.dataset.vtip); if (r) toast(b.dataset.vtip + ' NEAR tipped and split on chain'); });
-document.addEventListener('keydown', e => { if ($('#viewer').hidden) return; if (e.key === 'Escape') vClose(); if (e.key === 'ArrowLeft') vShow(vi - 1); if (e.key === 'ArrowRight') vShow(vi + 1); });
-let tx = null;
-$('#vStage').addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
-$('#vStage').addEventListener('touchend', e => { if (tx == null) return; const d = e.changedTouches[0].clientX - tx; tx = null; if (Math.abs(d) > 50) vShow(vi + (d < 0 ? 1 : -1)); });
-
-// ---------- the spoken guide ----------
-const LINES = [
-  ['Welcome', 'Welcome to Owl Toons. A cartoon studio on NEAR that runs itself, and pays the fans who shape it.'],
-  ['1. Vote', 'Every round there are a few plots for the next episode. Back the one you love with NEAR. The more you put in, the bigger your share if it wins. You can also pitch your own plot for one NEAR.'],
-  ['2. The AI makes it', 'When the timer ends, the AI agent writes the winning plot and draws it as a four panel cartoon. Nobody presses a button.'],
-  ['3. The fans get paid', 'Half of the pot goes to the fans who backed the winning plot, split by how much each one voted. The fans who pitched the first, second and third place plots get twelve, five and three percent.'],
-  ['4. HOODL burns', 'Twenty percent goes to the HOODL treasury, to buy back HOODL and burn it. The last ten percent pays for the agent\'s AI.'],
-  ['5. The episode is an NFT', 'The new episode is minted as an NFT to the fan whose plot won. Every tip on it is split on the spot. Sixty percent to the owner, twenty five percent to buyback and burn, fifteen percent to the AI.'],
-  ['6. Claim', 'Your winnings wait for you on the contract. Tap claim whenever you like. Every step is on chain, so anyone can check it. That is all. Pick a plot, and enjoy the show.']
-];
+// ---------- voices ----------
 const synth = window.speechSynthesis;
-let gi = 0, gOn = false, gPaused = false, voice = null;
+let voice = null;
 function pickVoice() {
   if (!synth) return null;
   const vs = synth.getVoices().filter(v => /^en/i.test(v.lang)); if (!vs.length) return null;
@@ -447,36 +494,153 @@ function pickVoice() {
   return vs.find(v => /female/i.test(v.name)) || vs[0];
 }
 if (synth) { voice = pickVoice(); synth.onvoiceschanged = () => { voice = pickVoice(); }; }
-$('#glines').innerHTML = LINES.map((l, i) => '<li data-i="' + i + '"><b>' + esc(l[0]) + '</b>' + esc(l[1]) + '</li>').join('');
-function mark(i) { document.querySelectorAll('#glines li').forEach((li, j) => { li.classList.toggle('now', j === i); li.classList.toggle('done', j < i); }); const cur = document.querySelector('#glines li.now'); if (cur) cur.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
-function speak(i) {
-  gi = i; mark(i);
-  if (i >= LINES.length) { gOn = false; $('#gbox').classList.remove('speaking'); $('#gPlay').textContent = 'Play again'; return; }
-  if (!synth) return;
-  const u = new SpeechSynthesisUtterance(LINES[i][1]);
-  if (voice) u.voice = voice; u.lang = voice ? voice.lang : 'en-US';
-  u.rate = 0.9; u.pitch = 0.95; u.volume = 1;
-  u.onend = () => { if (gOn && !gPaused && gi === i) setTimeout(() => { if (gOn && !gPaused && gi === i) speak(i + 1); }, 450); };
-  u.onerror = () => {};
-  synth.speak(u);
+function say(text, opts) {
+  return new Promise(res => {
+    if (!synth) return res();
+    const u = new SpeechSynthesisUtterance(text);
+    if (voice) u.voice = voice; u.lang = voice ? voice.lang : 'en-US';
+    u.rate = opts.rate; u.pitch = opts.pitch; u.volume = 1;
+    let done = false; const fin = () => { if (!done) { done = true; res(); } };
+    u.onend = fin; u.onerror = fin; setTimeout(fin, 1500 + text.length * 90);
+    synth.speak(u);
+  });
+}
+
+// ---------- the spoken guide ----------
+const LINES = [
+  ['Welcome', 'Welcome to Owl Toons. A cartoon studio on NEAR that runs itself, and pays the fans who shape it.'],
+  ['1. Vote', 'Every round there are a few plots for the next episode. Back the one you love with NEAR. The more you put in, the bigger your share if it wins. You can also pitch your own plot for one NEAR.'],
+  ['2. The AI makes it', 'When the timer ends, the AI agent writes the winning plot and draws it as a four panel cartoon. Nobody presses a button.'],
+  ['3. The fans get paid', 'Half of the pot goes to the fans who backed the winning plot, split by how much each one voted. The fans who pitched the first, second and third place plots get twelve, five and three percent.'],
+  ['4. HOODL burns', 'Twenty percent goes to the HOODL treasury, to buy back HOODL and burn it. The last ten percent pays for the AI.'],
+  ['5. The episode is an NFT', 'The new episode is minted as an NFT to the fan whose plot won. Every tip on it is split on the spot. Sixty percent to the owner, twenty five percent to buyback and burn, fifteen percent to the AI.'],
+  ['6. Claim', 'Your winnings wait for you on the contract. Tap claim whenever you like. Every step is on chain, so anyone can check it. Pick a plot, and enjoy the show.']
+];
+let gRun = 0, gi = 0, gPaused = false;
+$('#glines').innerHTML = LINES.map((l, i) => '<li><b>' + esc(l[0]) + '</b>' + esc(l[1]) + '</li>').join('');
+function mark(i) { document.querySelectorAll('#glines li').forEach((li, j) => li.classList.toggle('now', j === i)); const c = document.querySelector('#glines li.now'); if (c) c.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+async function guideFrom(i) {
+  const run = ++gRun; gPaused = false; $('#gPlay').textContent = 'Pause'; $('#gbox').classList.add('speaking');
+  for (gi = i; gi < LINES.length; gi++) { if (run !== gRun) return; mark(gi); await say(LINES[gi][1], { rate: 0.9, pitch: 0.95 }); if (run !== gRun) return; await sleep(400); }
+  $('#gbox').classList.remove('speaking'); $('#gPlay').textContent = 'Play again'; gi = LINES.length;
 }
 function openGuide() {
-  $('#guide').hidden = false; document.body.style.overflow = 'hidden'; $('#gClose').focus();
-  if (!synth) { $('#gNote').textContent = 'Your browser cannot read aloud, so here it is in writing.'; $('#gPlay').hidden = true; mark(-1); return; }
+  $('#guide').hidden = false; lock(true); $('#gClose').focus();
+  if (!synth) { $('#gNote').textContent = 'Your browser cannot read aloud, so here it is in writing.'; $('#gPlay').hidden = true; $('#gRestart').hidden = true; return; }
   $('#gNote').textContent = voice ? 'Voice: ' + voice.name.replace(/Microsoft |Online |\(Natural\)| - English.*$/g, '').trim() : '';
-  synth.cancel(); gOn = true; gPaused = false; $('#gPlay').textContent = 'Pause'; $('#gbox').classList.add('speaking'); speak(0);
+  synth.cancel(); guideFrom(0);
 }
-function closeGuide() { gOn = false; if (synth) synth.cancel(); $('#gbox').classList.remove('speaking'); $('#guide').hidden = true; document.body.style.overflow = ''; }
+function closeGuide() { gRun++; if (synth) synth.cancel(); $('#gbox').classList.remove('speaking'); $('#guide').hidden = true; lock(false); }
 document.querySelectorAll('[data-listen]').forEach(b => b.onclick = openGuide);
 $('#gClose').onclick = closeGuide;
 $('#guide').addEventListener('click', e => { if (e.target.id === 'guide') closeGuide(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#guide').hidden) closeGuide(); });
-$('#gRestart').onclick = () => { if (!synth) return; synth.cancel(); gOn = true; gPaused = false; $('#gPlay').textContent = 'Pause'; $('#gbox').classList.add('speaking'); speak(0); };
+$('#gRestart').onclick = () => { synth.cancel(); guideFrom(0); };
 $('#gPlay').onclick = () => {
-  if (!gOn) { $('#gRestart').onclick(); return; }
-  if (!gPaused) { gPaused = true; synth.cancel(); $('#gbox').classList.remove('speaking'); $('#gPlay').textContent = 'Resume'; }
-  else { gPaused = false; $('#gbox').classList.add('speaking'); $('#gPlay').textContent = 'Pause'; speak(gi); }
+  if (gi >= LINES.length) { synth.cancel(); guideFrom(0); return; }
+  if (!gPaused) { gPaused = true; gRun++; synth.cancel(); $('#gbox').classList.remove('speaking'); $('#gPlay').textContent = 'Resume'; }
+  else guideFrom(gi);
 };
+
+// ---------- episode player: the comic plays like a short show ----------
+const VO = { owl: { pitch: 0.85, rate: 0.92 }, fox: { pitch: 1.3, rate: 1.08 }, whale: { pitch: 0.55, rate: 0.85 }, frog: { pitch: 1.6, rate: 1.12 } };
+const NAMES = { owl: 'Hoodl', fox: 'Fox', whale: 'Whale', frog: 'Frog' };
+const NS = 'http://www.w3.org/2000/svg';
+const cache = {};
+let pi = 0, pRun = 0, muted = false, vb = null, svgEl = null, panels = [];
+const pEps = () => (S && S.episodes) || [];
+async function getEp(n) {
+  if (cache[n]) return cache[n];
+  const [svg, sc] = await Promise.all([fetch('/api/toons?ep=' + n).then(r => r.text()), fetch('/api/toons?script=' + n).then(r => r.json()).catch(() => ({}))]);
+  return (cache[n] = { svg, script: (sc && sc.script) || {} });
+}
+function setVB(b) { vb = b; svgEl.setAttribute('viewBox', b.join(' ')); }
+function cam(to, ms) {
+  return new Promise(res => {
+    const from = vb.slice(), t0 = performance.now();
+    const step = t => { const k = Math.min(1, (t - t0) / ms), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; setVB(from.map((v, i) => v + (to[i] - v) * e)); if (k < 1) requestAnimationFrame(step); else res(); };
+    requestAnimationFrame(step);
+  });
+}
+function prep() {
+  svgEl = $('#stage svg'); if (!svgEl) return;
+  const full = (svgEl.getAttribute('viewBox') || '0 0 1216 1078').split(/\s+/).map(Number);
+  svgEl.removeAttribute('width'); svgEl.removeAttribute('height'); svgEl.dataset.full = full.join(' '); vb = full;
+  panels = [...svgEl.children].filter(g => g.tagName === 'g' && /^translate\(/.test(g.getAttribute('transform') || '')).map(g => {
+    const m = /translate\(([-\d.]+),\s*([-\d.]+)\)/.exec(g.getAttribute('transform'));
+    const cast = [...g.querySelectorAll('g[clip-path] > g[transform]')].map(c => { const w = document.createElementNS(NS, 'g'); w.setAttribute('class', 'cbob'); while (c.firstChild) w.appendChild(c.firstChild); c.appendChild(w); return w; });
+    const bg = [...g.children].find(c => c.tagName === 'g' && !c.hasAttribute('clip-path'));
+    const bubs = [];
+    if (bg) { let cur = null; [...bg.children].forEach(el => { if (el.tagName === 'path') { cur = document.createElementNS(NS, 'g'); cur.setAttribute('class', 'bub'); bg.insertBefore(cur, el); bubs.push(cur); } if (cur) cur.appendChild(el); }); }
+    return { x: Number(m[1]), y: Number(m[2]), cast, bubs };
+  });
+}
+async function playEp() {
+  const run = ++pRun; if (synth) synth.cancel();
+  const ep = pEps()[pi]; if (!ep || !svgEl) return;
+  const sc = cache[ep.number].script || {}, P = sc.panels || [];
+  const full = svgEl.dataset.full.split(' ').map(Number);
+  svgEl.classList.add('hideb'); panels.forEach(p => p.bubs.forEach(b => b.classList.remove('on')));
+  $('#pPlay').textContent = 'Playing…'; $('#psub').innerHTML = '<b>Owl Toons</b>' + esc(ep.title);
+  setVB(full); if (!muted) await say('Owl Toons, episode ' + ep.number + '. ' + ep.title, { rate: 0.95, pitch: 0.9 }); else await sleep(1200);
+  for (let i = 0; i < panels.length; i++) {
+    if (run !== pRun) return;
+    const p = panels[i]; await cam([p.x - 14, p.y - 14, 580 + 28, 400 + 28], 750);
+    const lines = (P[i] && P[i].lines) || [];
+    for (let k = 0; k < p.bubs.length; k++) {
+      if (run !== pRun) return;
+      const l = lines[k] || { who: 'owl', say: '' };
+      p.bubs[k].classList.add('on');
+      const ci = Math.min(k, p.cast.length - 1); const ch = p.cast[ci]; if (ch) { ch.classList.remove('talk'); void ch.getBBox(); ch.classList.add('talk'); }
+      $('#psub').innerHTML = '<b>' + esc(NAMES[l.who] || 'Hoodl') + '</b>' + esc(l.say);
+      if (!muted && l.say) await say(l.say, VO[l.who] || VO.owl); else await sleep(1400 + String(l.say).length * 45);
+      await sleep(250);
+    }
+    if (!p.bubs.length) await sleep(1500);
+    await sleep(350);
+  }
+  if (run !== pRun) return;
+  await cam(full, 900);
+  $('#psub').innerHTML = sc.caption ? esc(sc.caption) : '';
+  $('#pPlay').textContent = 'Replay';
+}
+async function pShow(i) {
+  const E = pEps(); if (!E.length) return; pi = Math.max(0, Math.min(E.length - 1, i)); const e = E[pi];
+  pRun++; if (synth) synth.cancel();
+  $('#p-h').textContent = '#' + e.number + ' ' + e.title; $('#pCount').textContent = (pi + 1) + ' / ' + E.length;
+  $('#pPrev').disabled = pi === 0; $('#pNext').disabled = pi === E.length - 1; $('#psub').textContent = 'Loading…';
+  try { history.replaceState(null, '', '#ep' + e.number); } catch (x) {}
+  try { const d = await getEp(e.number); if (pEps()[pi] !== e) return; $('#stage').innerHTML = d.svg; prep(); playEp(); }
+  catch (x) { $('#psub').textContent = 'Could not load this episode.'; }
+}
+function pOpen(n) { const i = pEps().findIndex(e => e.number === n); if (i < 0) return false; $('#player').hidden = false; lock(true); pShow(i); return true; }
+function pClose() { pRun++; if (synth) synth.cancel(); $('#player').hidden = true; lock(false); try { history.replaceState(null, '', location.pathname); } catch (x) {} }
+document.addEventListener('click', e => { const a = e.target.closest('[data-view]'); if (!a) return; if (pOpen(Number(a.dataset.view))) e.preventDefault(); });
+$('#pClose').onclick = pClose; $('#pPrev').onclick = () => pShow(pi - 1); $('#pNext').onclick = () => pShow(pi + 1);
+$('#pPlay').onclick = () => playEp();
+$('#pMute').onclick = () => { muted = !muted; $('#pMute').textContent = muted ? 'Sound off' : 'Sound on'; if (muted && synth) synth.cancel(); };
+$('#pTip').onclick = async () => { const ep = pEps()[pi]; if (!ep) return; const r = await call('tip', { episode: ep.number }, '0.1'); if (r) toast('0.1 NEAR tipped and split on chain'); };
+$('#pShare').onclick = () => { const ep = pEps()[pi]; if (ep) openShare(ep); };
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { if (!$('#shareBox').hidden) closeShare(); else if (!$('#player').hidden) pClose(); else if (!$('#guide').hidden) closeGuide(); return; }
+  if ($('#player').hidden) return; if (e.key === 'ArrowLeft') pShow(pi - 1); if (e.key === 'ArrowRight') pShow(pi + 1);
+});
+let tx = null;
+$('#stage').addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+$('#stage').addEventListener('touchend', e => { if (tx == null) return; const d = e.changedTouches[0].clientX - tx; tx = null; if (Math.abs(d) > 60) pShow(pi + (d < 0 ? 1 : -1)); });
+
+// ---------- share ----------
+function openShare(ep) {
+  const url = location.origin + '/toons/#ep' + ep.number;
+  const text = 'Owl Toons #' + ep.number + ': ' + ep.title + '. An AI cartoon on NEAR where fans pick the plot and get paid.';
+  $('#shX').href = 'https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url);
+  $('#shTg').href = 'https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(text);
+  $('#shCopy').onclick = async () => { try { await navigator.clipboard.writeText(url); toast('Link copied'); } catch (x) { prompt('Copy this link', url); } };
+  $('#shareBox').hidden = false;
+}
+function closeShare() { $('#shareBox').hidden = true; }
+$('#shClose').onclick = closeShare;
+$('#shareBox').addEventListener('click', e => { if (e.target.id === 'shareBox') closeShare(); });
+$('#shareLast').onclick = () => { const E = pEps(); if (E.length) openShare(E[E.length - 1]); };
 </script>
 </body>
 </html>
