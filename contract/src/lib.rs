@@ -200,7 +200,7 @@ impl OwlToons {
 
     /// Tip an episode. Split on chain: 60% to the NFT owner, 25% to the treasury, 15% to the AI budget.
     #[payable]
-    pub fn tip(&mut self, episode: u32) -> Promise {
+    pub fn tip(&mut self, episode: u32) {
         let paid = env::attached_deposit().as_yoctonear();
         require!(paid >= ONE_NEAR / 100, "Minimum tip is 0.01 NEAR");
         require!(episode >= 1 && episode <= self.episodes.len(), "No such episode");
@@ -219,9 +219,11 @@ impl OwlToons {
             "EVENT_JSON:{{\"standard\":\"owltoons\",\"version\":\"1.0.0\",\"event\":\"tip\",\"data\":[{{\"episode\":{},\"from\":\"{}\",\"amount\":\"{}\",\"owner\":\"{}\"}}]}}",
             episode, env::predecessor_account_id(), paid, owner
         ));
-        Promise::new(owner)
-            .transfer(NearToken::from_yoctonear(to_owner))
-            .and(Promise::new(self.treasury.clone()).transfer(NearToken::from_yoctonear(to_treasury)))
+        // two separate transfers (NEAR does not allow returning a joined promise)
+        Promise::new(owner).transfer(NearToken::from_yoctonear(to_owner)).detach();
+        if to_treasury > 0 {
+            Promise::new(self.treasury.clone()).transfer(NearToken::from_yoctonear(to_treasury)).detach();
+        }
     }
 
     // ---------- the agent ----------
@@ -480,7 +482,7 @@ mod tests {
         assert_eq!(s.to_treasury.0, pot * 20 / 100 + pot * 5 / 100 + pot * 3 / 100);
         assert_eq!(s.reserve.0, pot - (pot / 2 + pot * 12 / 100) - s.to_treasury.0);
         ctx(accounts(4), ONE_NEAR, 12_000);
-        let _ = c.tip(1);
+        c.tip(1);
         let s = c.get_stats();
         assert_eq!(s.to_fans.0, pot / 2 + pot * 12 / 100 + ONE_NEAR * 6 / 10);
         ctx(fan.clone(), 0, 13_000);
