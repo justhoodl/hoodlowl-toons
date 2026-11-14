@@ -1,10 +1,10 @@
 # Owl Toons
 
 **An AI cartoon studio that runs itself on NEAR.**
-Fans write the story, the AI makes the cartoon, the cartoon pays its fans and burns $HOODL.
+Fans pick the story, the AI makes the cartoon, the fans who called it get paid and $HOODL burns.
 
 Live: **https://justhoodl.fun/toons/** (NEAR testnet)
-Contract: [`owltoons-hoodl.testnet`](https://testnet.nearblocks.io/address/owltoons-hoodl.testnet) · Agent: [`owltoons-agent.testnet`](https://testnet.nearblocks.io/address/owltoons-agent.testnet)
+Contract: [`owltoons-studio.testnet`](https://testnet.nearblocks.io/address/owltoons-studio.testnet) · Agent: [`owltoons-agent.testnet`](https://testnet.nearblocks.io/address/owltoons-agent.testnet)
 
 Built for the NEAR Hackathon by the $HOODL community. Tracks: **Autonomous Business**, **Agent Economy**, **NFTs That Do Something**.
 
@@ -16,8 +16,18 @@ Built for the NEAR Hackathon by the $HOODL community. Tracks: **Autonomous Busin
 2. **The AI writes.** When the vote closes, the agent asks **NEAR AI Cloud** to write a 4-panel comic script from the winning plot.
 3. **The art kit draws.** The script picks characters, poses, scenes, props and dialogue from a hand-drawn HOODL art kit (the owl, a scammer fox, a whale, a paper-hands frog, 6 scenes, 6 props). The comic is drawn as an SVG, so every episode looks hand-made and consistent, not like a random AI image.
 4. **The episode becomes an NFT** (NEP-171), minted on chain **to the fan whose plot won**.
-5. **Every tip is split on chain, instantly:** 50% to whoever owns the episode NFT, 30% to the HOODL treasury (buyback and burn), 20% to the agent's compute reserve.
-6. **The agent runs the business on its own.** It signs its own NEAR transactions with its own key. It pays its own AI bill out of the compute reserve (`pay_compute`, logged on chain), sends 70% of every vote pot to the treasury, and opens the next vote. Nobody presses a button.
+5. **The round's pot is paid out by the contract:**
+
+   | Who | Share |
+   |---|---|
+   | Fans who backed the winning plot (split by how much each voted) | **50%** |
+   | Fans who pitched the 1st / 2nd / 3rd placed plots | **12% / 5% / 3%** |
+   | HOODL treasury (buyback and burn) | **20%** |
+   | The agent's AI budget | **10%** |
+
+   A share with nobody to receive it (no one backed the winner, or a top-3 plot was the agent's own idea) goes to the treasury and burns. Fans collect with `claim()`.
+6. **Every tip is split on chain, instantly:** 60% to whoever owns the episode NFT, 25% to the treasury (buyback and burn), 15% to the agent's AI budget.
+7. **The agent runs the business on its own.** It signs its own NEAR transactions with its own key, pays its own AI bill out of its budget (`pay_compute`, logged on chain) and opens the next vote. Nobody presses a button.
 
 Because the plot winner owns the NFT, owning an episode is owning a small income stream: sell the NFT and the tip share moves with it.
 
@@ -26,14 +36,16 @@ Because the plot winner owns the NFT, owning an episode is owning a small income
 1. Get a testnet wallet: [testnet.mynearwallet.com](https://testnet.mynearwallet.com) or Meteor Wallet switched to testnet (both give you free test NEAR).
 2. Open https://justhoodl.fun/toons/ and tap **Connect wallet**.
 3. Vote on a plot, or pitch your own.
-4. When the timer runs out, the agent makes the episode by itself (it checks every 10 minutes). Tip it, or find your NFT in your wallet if your plot won.
+4. When the timer runs out, the agent makes the episode by itself (it checks every 10 minutes). If you backed the winner or pitched a top-3 plot, tap **Claim**. If your plot won, the NFT is in your wallet.
+5. Tap **Play** on any episode to watch it as a short animated show with voices, and **Share** to post it.
+6. Tap **How it works** to hear it explained.
 
 The vote, the agent's wallet numbers and the episode list come straight from the contract (`get_round`, `get_stats`, `get_episodes`).
 
 ## Architecture
 
 ```
- fans (NEAR wallet) ──vote / pitch / tip──►  owltoons-hoodl.testnet  (Rust contract, this repo /contract)
+ fans (NEAR wallet) ──vote / pitch / tip / claim──►  owltoons-studio.testnet  (Rust contract, this repo /contract)
                                                │  rounds, votes, pot, episodes, NEP-171 NFTs,
                                                │  tip split, treasury payouts, compute reserve
                                                ▲
@@ -41,16 +53,16 @@ The vote, the agent's wallet numbers and the episode list come straight from the
      1. read get_round; vote closed?
      2. NEAR AI Cloud (deepseek-v3.2) writes the 4-panel script as JSON
      3. art kit (/agent/_toons_art.js) draws the SVG comic
-     4. publish_episode  → NFT minted to the plot winner, pot settled (70% treasury / 30% reserve)
+     4. publish_episode  → NFT minted to the plot winner, pot paid out (50% winning voters, 12/5/3% top pitchers, 20% treasury, 10% AI)
      5. pay_compute      → agent pays its AI bill from the reserve
      6. NEAR AI pitches 3 new plots → open_round
 ```
 
-- **contract/** Rust, `near-sdk` 5. Unit tests cover a full round (ideas, a fan pitch, votes, publish, NFT to the winner, pot split, tip split) and late votes.
+- **contract/** Rust, `near-sdk` 5. Unit tests cover a full round (ideas, a fan pitch, votes, publish, NFT to the winner, pot payouts, tip split, claim), voters split by weight, and late votes.
 - **res/owl_toons.wasm** compiled in public by GitHub Actions (`.github/workflows/build-contract.yml`) on every change, with its sha256. The deployed code can be checked against it.
 - **agent/toons.js** the agent: NEAR transaction signing (ed25519 + borsh, no SDK), NEAR AI calls, the studio loop, a JSON API for the site, and the episode images (`/api/toons?ep=N` is each NFT's media).
 - **agent/_toons_art.js** the art kit: every character, scene, prop and speech bubble.
-- **web/index.html** the site: vote, pitch, tip, watch the agent's wallet and log.
+- **web/index.html** the site: vote, pitch, tip, claim, the live prize breakdown, the agent's wallet and log, a spoken "How it works" guide, and an episode player that turns each comic into a short animated show with a voice per character.
 
 ## Contract methods
 
@@ -58,11 +70,12 @@ The vote, the agent's wallet numbers and the episode list come straight from the
 |---|---|---|
 | fans | `vote(option)` payable, ≥ 0.1 NEAR | adds weight to a plot |
 | fans | `pitch(text)` payable, 1 NEAR | adds your own plot to the round |
-| fans | `tip(episode)` payable, ≥ 0.01 NEAR | splits 50 / 30 / 20 on chain |
+| fans | `tip(episode)` payable, ≥ 0.01 NEAR | splits 60 / 25 / 15 on chain |
+| fans | `claim()` | sends you everything you have won |
 | agent | `open_round(ideas, closes_at)` | opens the next vote with the agent's ideas |
-| agent | `publish_episode(title, media, script)` | mints the winning episode to the plot's author, settles the pot |
+| agent | `publish_episode(title, media, script)` | mints the winning episode to the plot's author, pays out the pot |
 | agent | `pay_compute(amount, note)` | pays the agent's AI bill from the reserve |
-| anyone | `get_round`, `get_stats`, `get_episodes`, `nft_*` | views |
+| anyone | `get_round`, `get_stats`, `get_episodes`, `get_earnings`, `nft_*` | views |
 
 The agent can only do what these methods allow. It cannot take fans' tips or the vote pot: those move by the fixed rules above.
 
