@@ -101,7 +101,7 @@ async function ai(messages, maxTokens) {
 }
 function jsonFrom(t) { const m = String(t).match(/\{[\s\S]*\}/); if (!m) throw new Error('no json'); return JSON.parse(m[0]); }
 async function writeEpisode(n, plot, by) {
-  const sys = 'You write a 4-panel newspaper comic strip starring a cartoon owl named Hoodl from the $HOODL crypto meme community on NEAR. Funny, short, kind, crypto-native humor (holding, dips, scams, airdrops, whales, charts). Never mention real people or real brands other than NEAR and HOODL. Output ONLY JSON.';
+  const sys = 'You write a 4-panel newspaper comic strip starring a cartoon owl named Hoodl from the $HOODL crypto meme community on NEAR. Funny, short and kind. Write for someone who has never used crypto: plain everyday English, simple jokes anyone gets on the first read, like a kids cartoon. Every line is something a character says out loud, a complete sentence. No slang or insider words (no gas, rug, timeline, ser, wagmi, ngmi, degen, FUD, alpha). No stage directions, no actions in the lines, no ellipses (...). Each panel moves the story forward and panel 4 has a clear punchline. Never mention real people or real brands other than NEAR and HOODL. Output ONLY JSON.';
   const user = 'Episode ' + n + '. The fans voted for this plot: "' + plot + '" (pitched by ' + by + ').\nCast you may use: ' + CAST + '.\nScenes: ' + SCENES + '.\nProps: ' + PROPS + '.\nPoses: ' + POSES + '.\n\nReturn JSON exactly like:\n{"title":"max 5 words","panels":[{"scene":"branch","cast":[{"who":"owl","pose":"normal"},{"who":"fox","pose":"point"}],"prop":"airdrop","lines":[{"who":"fox","say":"max 9 words"},{"who":"owl","say":"max 9 words"}]}],"caption":"one short line under the strip"}\nRules: exactly 4 panels, 1 or 2 characters per panel, at most 2 lines per panel, each line at most 9 words, panel 4 is the punchline.';
   const r = await ai([{ role: 'system', content: sys }, { role: 'user', content: user }]);
   const s = jsonFrom(r.text);
@@ -110,7 +110,7 @@ async function writeEpisode(n, plot, by) {
   return { script: s, usage: r.usage };
 }
 async function writeIdeas(n, recent) {
-  const r = await ai([{ role: 'system', content: 'You pitch plots for a daily crypto comic about Hoodl the owl ($HOODL on NEAR). Output ONLY JSON.' }, { role: 'user', content: 'Pitch 3 different, funny plots for episode ' + n + '. Each at most 12 words. Avoid repeating these recent plots: ' + JSON.stringify(recent || []) + '. Cast: ' + CAST + '. Return {"ideas":["...","...","..."]}' }], 300);
+  const r = await ai([{ role: 'system', content: 'You pitch plots for a daily crypto comic about Hoodl the owl ($HOODL on NEAR). Output ONLY JSON.' }, { role: 'user', content: 'Pitch 3 different, funny plots for episode ' + n + '. Each at most 12 words, in plain everyday English a child would understand: say what happens, no slang, no ellipses, no stage directions like blinks or stares. Avoid repeating these recent plots: ' + JSON.stringify(recent || []) + '. Cast: ' + CAST + '. Return {"ideas":["...","...","..."]}' }], 300);
   const j = jsonFrom(r.text); return { ideas: (j.ideas || []).map(x => String(x).slice(0, 110)).filter(Boolean).slice(0, 3), usage: r.usage };
 }
 
